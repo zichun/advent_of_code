@@ -18,4 +18,5 @@ fn day01() {
 
     println!("{}", day01::day01_1(&input));
     println!("{}", day01::day01_2(&input));
+    println!("{}", day01::day01_2_linear(&input));
 }
