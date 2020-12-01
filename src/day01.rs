@@ -32,9 +32,9 @@ pub fn day01_2(input: &Vec<u32>) -> u32
 
     let mut ans = None;
 
-    for i in (0..input.len())
+    for i in 0..input.len()
     {
-        for j in (1..input.len())
+        for j in 1..input.len()
         {
             if input[i] + input[j] > TARGET
             {
