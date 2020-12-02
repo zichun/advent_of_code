@@ -1,9 +1,17 @@
 use std::io::{self, Read};
 
 mod day01;
+mod day02;
 
 fn main() {
-    day01();
+    day02();
+}
+
+fn day02() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    println!("{}", day02::day02_1(&input));
+    println!("{}", day02::day02_2(&input));
 }
 
 fn day01() {
