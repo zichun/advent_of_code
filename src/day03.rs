@@ -7,21 +7,20 @@ impl Map
 {
     fn parse(input: &str) -> Self
     {
-        let map: Vec<Vec<bool>> = input.lines().map(
-            |line|
-            {
-                let is_tree: Vec<bool> = line.chars().map(|c| c == '#').collect();
-                is_tree
-            }
-        ).collect();
-
-        Map { map }
+        Map {
+            map: input.lines().map(
+                |line|
+                {
+                    let is_tree: Vec<bool> = line.chars().map(|c| c == '#').collect();
+                    is_tree
+                }
+            ).collect()
+        }
     }
 
     fn is_tree(&self, row: usize, col: usize) -> bool
     {
-        let col_count = self.map[0].len();
-        self.map[row][col % col_count]
+        self.map[row][col % self.map[0].len()]
     }
 
     fn rows(&self) -> usize
@@ -33,11 +32,8 @@ impl Map
         let mut row = 0;
         let mut col = 0;
         let mut cnt = 0;
-        while row < self.rows() {
+        while row + down < self.rows() {
             row += down;
-            if row >= self.rows() {
-                break;
-            }
             col += right;
             cnt += if self.is_tree(row, col) { 1 } else { 0 };
         }
