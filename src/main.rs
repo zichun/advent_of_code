@@ -3,9 +3,17 @@ use std::io::{self, Read};
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 fn main() {
-    day03();
+    day04();
+}
+
+fn day04() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    println!("{}", day04::day04_1(&input));
+    println!("{}", day04::day04_2(&input));
 }
 
 fn day03() {
