@@ -99,7 +99,7 @@ pub fn day16_2(input: &str) -> u64 {
 
     input.fields.iter()
         .enumerate()
-        .filter(|(ind, (s, _))| {
+        .filter(|(_, (s, _))| {
             s.starts_with("departure")
         }).map(|(ind, _)| {
             input.your_tickets[soln[ind]] as u64

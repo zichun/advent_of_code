@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 use std::io::{self, Read};
 
@@ -18,9 +19,17 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 fn main() {
-    day16();
+    day17();
+}
+
+fn day17() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    println!("{}", day17::day17_1(&input));
+    println!("{}", day17::day17_2(&input));
 }
 
 fn day16() {

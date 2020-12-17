@@ -67,14 +67,14 @@ fn invmod(a: i64, m: i64) -> i64 {
 
 fn gauss(a: &[i64], n: &[i64]) -> i64 {
     let mut result = 0;
-    let N = n.iter().product::<i64>();
+    let nn = n.iter().product::<i64>();
 
     for i in 0..n.len() {
-        let b = N / n[i];
+        let b = nn / n[i];
         result += a[i] * b * invmod(b, n[i]);
     }
 
-    result % N
+    result % nn
 }
 
 #[test]

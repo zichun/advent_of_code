@@ -9,8 +9,8 @@ enum Dir
 
 struct Ferry
 {
-    northSouth: i32,
-    eastWest: i32,
+    north_south: i32,
+    east_west: i32,
     direction: Dir
 }
 
@@ -19,8 +19,8 @@ impl Ferry
     fn new() -> Self
     {
         Ferry {
-            northSouth: 0,
-            eastWest: 0,
+            north_south: 0,
+            east_west: 0,
             direction: Dir::East
         }
     }
@@ -48,10 +48,10 @@ impl Ferry
     {
         match dir
         {
-            Dir::North => self.northSouth += units,
-            Dir::South => self.northSouth -= units,
-            Dir::East => self.eastWest += units,
-            Dir::West => self.eastWest -= units
+            Dir::North => self.north_south += units,
+            Dir::South => self.north_south -= units,
+            Dir::East => self.east_west += units,
+            Dir::West => self.east_west -= units
         }
     }
 
@@ -71,20 +71,20 @@ impl Ferry
 
 struct FerryWithWaypoint
 {
-    northSouth: i32,
-    eastWest: i32,
-    waypointNorthSouth: i32, // relative to Ferry
-    waypointEastWest: i32
+    north_south: i32,
+    east_west: i32,
+    waypoint_north_south: i32, // relative to Ferry
+    waypoint_east_west: i32
 }
 
 impl FerryWithWaypoint
 {
     fn new() -> Self {
         FerryWithWaypoint {
-            northSouth: 0,
-            eastWest: 0,
-            waypointNorthSouth: 1,
-            waypointEastWest: 10
+            north_south: 0,
+            east_west: 0,
+            waypoint_north_south: 1,
+            waypoint_east_west: 10
         }
     }
 
@@ -110,25 +110,25 @@ impl FerryWithWaypoint
     {
         match dir
         {
-            Dir::North => self.waypointNorthSouth += units,
-            Dir::South => self.waypointNorthSouth -= units,
-            Dir::East => self.waypointEastWest += units,
-            Dir::West => self.waypointEastWest -= units
+            Dir::North => self.waypoint_north_south += units,
+            Dir::South => self.waypoint_north_south -= units,
+            Dir::East => self.waypoint_east_west += units,
+            Dir::West => self.waypoint_east_west -= units
         }
     }
 
     fn move_ferry(&mut self, units: i32)
     {
-        self.northSouth += units * self.waypointNorthSouth;
-        self.eastWest += units * self.waypointEastWest;
+        self.north_south += units * self.waypoint_north_south;
+        self.east_west += units * self.waypoint_east_west;
     }
 
     fn turn_right(&mut self, units: i32) {
         for _ in 0..units / 90
         {
-            let ew = self.waypointEastWest;
-            self.waypointEastWest = self.waypointNorthSouth;
-            self.waypointNorthSouth = -ew;
+            let ew = self.waypoint_east_west;
+            self.waypoint_east_west = self.waypoint_north_south;
+            self.waypoint_north_south = -ew;
         }
     }
 }
@@ -137,14 +137,14 @@ pub fn day12_1(input: &str) -> i32
 {
     let mut ferry = Ferry::new();
     input.lines().for_each(|line| ferry.process(line));
-    ferry.northSouth.abs() + ferry.eastWest.abs()
+    ferry.north_south.abs() + ferry.east_west.abs()
 }
 
 pub fn day12_2(input: &str) -> i32
 {
     let mut ferry = FerryWithWaypoint::new();
     input.lines().for_each(|line| ferry.process(line));
-    ferry.northSouth.abs() + ferry.eastWest.abs()
+    ferry.north_south.abs() + ferry.east_west.abs()
 }
 
 #[test]
