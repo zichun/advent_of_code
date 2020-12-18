@@ -20,9 +20,18 @@ mod day14;
 mod day15;
 mod day16;
 mod day17;
+mod day17_rewrite;
+mod day18;
 
 fn main() {
     day17();
+}
+
+fn day18() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    println!("{}", day18::day18_1(&input));
+    println!("{}", day18::day18_2(&input));
 }
 
 fn day17() {
@@ -30,6 +39,9 @@ fn day17() {
     io::stdin().read_to_string(&mut input).unwrap();
     println!("{}", day17::day17_1(&input));
     println!("{}", day17::day17_2(&input));
+
+    println!("{}", day17_rewrite::day17_1(&input));
+    println!("{}", day17_rewrite::day17_2(&input));
 }
 
 fn day16() {
