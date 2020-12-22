@@ -6,11 +6,11 @@ enum Rule {
 }
 
 #[derive(Default)]
-struct Grammer {
+struct Grammar {
     rules: HashMap<usize, Rule>
 }
 
-impl Grammer {
+impl Grammar {
     fn add_rule(&mut self, rule_index: usize, rule: &str) {
         if rule.starts_with("\"") {
             let c = rule.chars().skip(1).next().unwrap();
@@ -72,7 +72,7 @@ impl Grammer {
 
 
 pub fn day19_1(input: &str) -> usize {
-    let mut g = Grammer::default();
+    let mut g = Grammar::default();
     input.lines()
         .take_while(|&line| !line.trim().is_empty())
         .for_each(|line| {
@@ -88,7 +88,7 @@ pub fn day19_1(input: &str) -> usize {
 }
 
 pub fn day19_2(input: &str) -> usize {
-    let mut g = Grammer::default();
+    let mut g = Grammar::default();
     input.lines()
         .take_while(|&line| !line.trim().is_empty())
         .for_each(|line| {
