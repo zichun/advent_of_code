@@ -25,9 +25,17 @@ mod day18;
 mod day19;
 mod day20;
 mod day21;
+mod day22;
 
 fn main() {
-    day20();
+    day22();
+}
+
+fn day22() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    println!("{}", day22::day22_1(&input));
+    println!("{}", day22::day22_2(&input));
 }
 
 fn day21() {
