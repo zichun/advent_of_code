@@ -26,9 +26,16 @@ mod day19;
 mod day20;
 mod day21;
 mod day22;
+mod day23;
 
 fn main() {
-    day22();
+    day23();
+}
+
+fn day23() {
+    let input = "219748365";
+    println!("{}", day23::day23_1(&input));
+    println!("{}", day23::day23_2(&input));
 }
 
 fn day22() {
