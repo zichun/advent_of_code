@@ -28,9 +28,14 @@ mod day21;
 mod day22;
 mod day23;
 mod day24;
+mod day25;
 
 fn main() {
-    day24();
+    day25();
+}
+
+fn day25() {
+    println!("{}", day25::day25_1(13135480, 8821721));
 }
 
 fn day24() {
