@@ -36,8 +36,6 @@ struct Instruction {
 }
 
 fn parse(input: &str) -> (Hanoi, Vec<Instruction>) {
-    let mut iter = input.split("\r\n\r\n");
-
     let hanoi = input
         .lines()
         .take_while(|l| {
