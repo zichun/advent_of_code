@@ -95,8 +95,8 @@ fn process(monkeys: &mut [Monkey], iter_cnt: usize, post_op: Box<dyn Fn(u64) -> 
     items.iter().for_each(|(ind, wor)| {
         let mut wor = *wor;
         let mut ind = *ind;
-        let mut rnd: i32 = 0;
-        while rnd < iter_cnt as i32 {
+        let mut rnd = 0;
+        while rnd < iter_cnt {
             monkeys[ind].inspected += 1;
             wor = (monkeys[ind].operation)(wor) % modulo_product;
             wor = post_op(wor);
