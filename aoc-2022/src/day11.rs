@@ -78,15 +78,6 @@ impl Monkey {
             inspected: 0
         }
     }
-    fn process(&mut self) -> Vec<(usize, u64)> {
-        let tr = self.items.iter().map(|old| {
-            let new  = (self.operation)(*old) / 3;
-            (self.test.invoke(new), new)
-        }).collect();
-        self.inspected += self.items.len();
-        self.items.clear();
-        tr
-    }
 }
 
 fn parse(input: &str) -> Vec<Monkey> {
