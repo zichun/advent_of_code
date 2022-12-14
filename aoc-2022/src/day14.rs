@@ -112,6 +112,6 @@ pub fn part1(input: &str) -> usize {
 fn test() {
     let input = "498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9";
-//    assert_eq!(part1(input), 24);
+    assert_eq!(part1(input), 24);
     assert_eq!(part2(input), 93);
 }
