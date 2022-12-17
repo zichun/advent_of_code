@@ -41,7 +41,8 @@ struct Tetris<'a> {
     rocks: &'a [Rock],
     wind_len: usize,
     last_wind_ind: usize,
-    cache: HashMap<(usize, usize, u64), (usize, usize)>
+    cache: HashMap<Vec<Vec<bool>>, Vec<(usize, usize, usize)>>,
+    found_repeat: Option<Vec<Vec<bool>>>,
 }
 
 fn absolute_rock(rock: &Rock, r: usize, c: usize) -> Rock {
@@ -57,7 +58,8 @@ impl<'a> Tetris<'a> {
             rocks,
             wind_len,
             last_wind_ind: 0,
-            cache: HashMap::new()
+            cache: HashMap::new(),
+            found_repeat: None
         }
     }
 
@@ -91,24 +93,6 @@ impl<'a> Tetris<'a> {
                 self.map[r][c] = true;
             });
     }
-    fn compress_top(&self, layers: usize) -> u64 {
-        let h = self.map.len();
-        assert!(layers <= h);
-        let mut tr = 0;
-        for l in 0..layers {
-            let lc = self.map[h - 1 - l].iter()
-                .fold(0u32, |acc, c|
-                      (acc + if *c { 1 } else { 0 }) << 1) as u64;
-            tr = (tr * 24804727 + lc) % 512069826173;
-        }
-        tr
-    }
-    fn has_repeat(&mut self) -> Option<(usize, usize)> {
-        let wind = (self.last_wind_ind + 1) % self.wind_len;
-        let rind = self.rock_ind;
-        let top_7 = self.compress_top(5);
-        self.cache.get(&(wind, rind, top_7)).copied()
-    }
     fn drop_rock(&mut self, ind: usize) {
         let rock = &self.rocks[self.rock_ind];
         self.rock_ind = (self.rock_ind + 1) % self.rocks.len();
@@ -124,10 +108,17 @@ impl<'a> Tetris<'a> {
             }
         }
 
-        if self.map.len() > 10 {
-            let rind = self.rock_ind;
-            let top_7 = self.compress_top(5);
-            self.cache.insert((self.last_wind_ind, rind, top_7), (self.map.len(), ind));
+        if self.map.len() > 20 && self.found_repeat.is_none() {
+            let key = self.map.iter().rev().take(20)
+                .map(|l|
+                     l.iter().copied().collect::<Vec<_>>()).collect::<Vec<_>>();
+            let v = self.cache.entry(key.clone()).or_default();
+            v.push((ind, self.map.len(), self.last_wind_ind));
+            if v.len() == 2 {
+                if v[0].0 % 5 == v[1].0 % 5 && v[0].2 == v[1].2 {
+                    self.found_repeat = Some(key);
+                }
+            }
         }
     }
     fn debug(&self) {
@@ -160,14 +151,21 @@ pub fn part2(input: &str) -> u64 {
     let mut tetris = Tetris::new(&mut wind, &rocks, wind_vec.len());
 
     const target: usize = 1000000000000;
+    let mut addition = 0;
     for ind in 0..target {
         tetris.drop_rock(ind);
 
-        if ind > 1000 {
-            if let Some((ph, piter)) = tetris.has_repeat() {
-                todo!();
-                break;
+        if let Some(ref key) = tetris.found_repeat {
+            let v = &tetris.cache[key];
+            let rock_ind_skip = v[1].0 - v[0].0;
+            let height_skip = v[1].1 - v[0].1;
+            let iter = (target - ind) / rock_ind_skip;
+            addition = (iter as u64) * (height_skip as u64);
+            let actual_rock_ind_skip = iter * rock_ind_skip;
+            for nind in (ind + actual_rock_ind_skip)..target {
+                tetris.drop_rock(nind);
             }
+            return tetris.map.len() as u64 + addition - 1;
         }
     };
     0
