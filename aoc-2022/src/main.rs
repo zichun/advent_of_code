@@ -20,11 +20,12 @@ pub mod day14;
 pub mod day15;
 pub mod day16;
 pub mod day17;
+pub mod day18;
 
 fn main() {
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
 
-    println!("{}", day17::part1(&input));
-    println!("{}", day17::part2(&input));
+    println!("{}", day18::part1(&input));
+    println!("{}", day18::part2(&input));
 }
