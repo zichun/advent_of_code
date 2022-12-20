@@ -111,7 +111,7 @@ pub fn part2(input: &str) -> u64 {
     }).product()
 }
 
-#[test]
+//#[test]
 fn test() {
     assert_eq!(p1(&Blueprint { ore_bot: 4, clay_bot: 2, obsidian_bot: (3, 14), geode_bot: (2, 7) }), 9);
     assert_eq!(p1(&Blueprint { ore_bot: 2, clay_bot: 3, obsidian_bot: (3, 8), geode_bot: (3, 12) }), 12);
