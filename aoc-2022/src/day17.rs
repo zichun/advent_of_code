@@ -150,19 +150,18 @@ pub fn part2(input: &str) -> u64 {
     let mut wind = wind_vec.iter().enumerate().cycle();
     let mut tetris = Tetris::new(&mut wind, &rocks, wind_vec.len());
 
-    const target: usize = 1000000000000;
-    let mut addition = 0;
-    for ind in 0..target {
+    const TARGET: usize = 1000000000000;
+    for ind in 0..TARGET {
         tetris.drop_rock(ind);
 
         if let Some(ref key) = tetris.found_repeat {
             let v = &tetris.cache[key];
             let rock_ind_skip = v[1].0 - v[0].0;
             let height_skip = v[1].1 - v[0].1;
-            let iter = (target - ind) / rock_ind_skip;
-            addition = (iter as u64) * (height_skip as u64);
+            let iter = (TARGET - ind) / rock_ind_skip;
+            let addition = (iter as u64) * (height_skip as u64);
             let actual_rock_ind_skip = iter * rock_ind_skip;
-            for nind in (ind + actual_rock_ind_skip)..target {
+            for nind in (ind + actual_rock_ind_skip)..TARGET {
                 tetris.drop_rock(nind);
             }
             return tetris.map.len() as u64 + addition - 1;
