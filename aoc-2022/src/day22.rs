@@ -69,39 +69,10 @@ impl Cube {
                     cnt += step;
                 }
             }
-
-            // find knights move away
-            for step in vec![1, 3] {
-                let (mut rr, mut cc) = mv(r as isize, c as isize, (dir + 2) % 4);
-                let mut cnt = 0;
-                let mut ind = 0;
-                for _ in 0..4 {
-                    if let Some(Some(nind)) = get(matrix, rr, cc) {
-                        ind = nind;
-                        cnt += 1;
-                    }
-                    if cnt == 3 {
-                        break;
-                    }
-                    (rr, cc) = mv(rr, cc, (dir + step) % 4);
-                }
-                if cnt == 3 {
-                    let (or, oc) = mv(r as isize, c as isize, (dir + 2) % 4);
-                    let del = (rr - or).abs() + (cc - oc).abs();
-                    return Some((ind, (dir + (del as usize * step)) % 4));
-                }
-            }
             None
-
-/*            // try finding three adj away, in opposite direction
-            let (mut rr, mut cc) = (r as isize, c as isize);
-            for _ in 0..4 {
-                (rr, cc) = mv(rr, cc, (dir + 2) % 4);
-            }
-            let connector = find(matrix, rr as usize, cc as usize, dir);
-            (connector.0, (connector.1 + 2) % 4)*/
         }
 
+        // find initial adjacency using direct connections
         for i in 0..faces.len() {
             for dir in 0..4 {
                 let (r, c, _) = faces[i];
@@ -113,6 +84,7 @@ impl Cube {
             }
         }
 
+        // find adjacency through transitivity (e.g right of a face == bottom right or top right with rotation)
         for i in 0..faces.len() {
             for dir in 0..4 {
                 let conn = faces[i].2[dir];
@@ -155,19 +127,10 @@ impl Cube {
         let (cube_r, cube_c, _) = self.faces[cube_ind];
         let (top_r, top_c) = (cube_r * self.dimension, cube_c * self.dimension);
         match dir {
-            0 => { // right
-                (top_r + offset, top_c)
-
-            },
-            1 => { // down
-                (top_r, top_c + self.dimension - 1 - offset)
-            },
-            2 => { // left
-                (top_r + self.dimension - 1 - offset, top_c + self.dimension - 1)
-            },
-            3 => { // up
-                (top_r + self.dimension - 1, top_c + offset)
-            },
+            0 => (top_r + offset, top_c), // right
+            1 => (top_r, top_c + self.dimension - 1 - offset), // down
+            2 => (top_r + self.dimension - 1 - offset, top_c + self.dimension - 1), // left
+            3 => (top_r + self.dimension - 1, top_c + offset), // up
             _ => unimplemented!()
         }
     }
@@ -196,9 +159,10 @@ impl Map {
         println!("");
     }
     fn new(mut map: Vec<Vec<char>>) -> Self {
-        // normalize map
+        // normalize map (expand width to match max width)
         let max_c = map.iter().map(|l| l.len()).max().unwrap();
         map.iter_mut().for_each(|row| while row.len() < max_c { row.push(' ') });
+
         let cube = Cube::new(&map);
         Map {
             map,
