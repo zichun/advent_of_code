@@ -8,71 +8,53 @@ enum Dir {
 struct Map {
     r: isize,
     c: isize,
-    blizzards: Vec<(isize, isize, Dir)>,
-    cache_blizzards: HashMap<isize, HashSet<(isize, isize)>>,
+    blizzards_dir: [HashSet<(isize, isize)>; 4]
 }
 impl Map {
-    fn get_blizzard_at_tick(&mut self, tick: isize) -> &HashSet<(isize, isize)> {
-        let (rsize, csize) = (self.r - 2, self.c - 2);
-        self.cache_blizzards.entry(tick).or_insert_with(|| {
-            self.blizzards.iter().map(|(r, c, dir)| {
-                let (rr, cc) = DT[*dir as usize];
-                let nr = (*r - 1 + (tick * rr)).rem_euclid(rsize) + 1;
-                let nc = (*c - 1 + (tick * cc)).rem_euclid(csize) + 1;
-                (nr, nc)
-            }).collect::<HashSet<_>>()
-        })
-    }
     fn can_go(&mut self, r: isize, c: isize, tick: isize) -> bool {
-        if r == 0 && c == 1 {
+        let (er, ec) = (self.r - 1, self.c - 2);
+        if (r == 0 && c == 1) || (r == er && c == ec) {
             return true;
         }
         if r <= 0 || c <= 0 || r >= self.r - 1 || c >= self.c - 1 {
             return false;
         }
-        !self.get_blizzard_at_tick(tick).contains(&(r, c))
-    }
-    fn print_at_tick(&mut self, tick: isize) {
-        let (max_r, max_c) = (self.r, self.c);
-        let nb = self.get_blizzard_at_tick(tick);
-        for r in 0..max_r {
-            for c in 0..max_c {
-                if r == 0 || c == 0 || r == max_r - 1 || c == max_c - 1 {
-                    print!("#");
-                } else if nb.contains(&(r, c)) {
-                    print!("*");
-                } else {
-                    print!(".");
-                }
+        let (rsize, csize) = (self.r - 2, self.c - 2);
+        for dir in 0..4 {
+            let (rr, cc) = DT[dir as usize];
+            let nr = (r - 1 + (tick * rr)).rem_euclid(rsize) + 1;
+            let nc = (c - 1 + (tick * cc)).rem_euclid(csize) + 1;
+            if self.blizzards_dir[dir].contains(&(nr, nc)) {
+                return false;
             }
-            println!("");
         }
+        true
     }
 }
 
 fn parse(input: &str) -> Map {
     let (mut rmax, mut cmax) = (0, 0);
-    let blizzards = input.lines().enumerate().flat_map(|(r, line)| {
+    let mut blizzards_dir = [HashSet::new(), HashSet::new(), HashSet::new(), HashSet::new()];
+    input.lines().enumerate().for_each(|(r, line)| {
         if line.trim() == "" {
-            return vec![];
+            return;
         }
         rmax = rmax.max(r as isize);
-        line.chars().enumerate().filter_map(|(c, ch)| {
+        line.chars().enumerate().for_each(|(c, ch)| {
             cmax = cmax.max(c as isize);
             let (r, c) = (r as isize, c as isize);
             match ch {
-                '>' => Some((r, c, Dir::Right)),
-                'v' => Some((r, c, Dir::Down)),
-                '<' => Some((r, c, Dir::Left)),
-                '^' => Some((r, c, Dir::Up)),
-                _ => None
-            }
-        }).collect::<Vec<_>>()
-    }).collect();
+                '>' => blizzards_dir[2].insert((r, c)),
+                'v' => blizzards_dir[3].insert((r, c)),
+                '<' => blizzards_dir[0].insert((r, c)),
+                '^' => blizzards_dir[1].insert((r, c)),
+                _ => false,
+            };
+        });
+    });
     Map {
         r: rmax + 1, c: cmax + 1,
-        blizzards,
-        cache_blizzards: HashMap::new(),
+        blizzards_dir,
     }
 }
 
@@ -101,16 +83,13 @@ fn man_dist(r0: isize, c0: isize, r1: isize, c1: isize) -> isize {
     (r0 - r1).abs() + (c0 - c1).abs()
 }
 
-pub fn part1(input: &str) -> isize {
-    let mut map = parse(input);
+fn astar(map: &mut Map, sr: isize, sc: isize, er: isize, ec: isize, start_dist: isize) -> isize {
     let mut heap = BinaryHeap::new();
-    let (er, ec) = (map.r - 1, map.c - 2);
     let mut visited = HashSet::new();
 
     heap.push(State {
-        r: 0, c: 1, dist: 0, dist_to_end: man_dist(er, ec, 0, 1)
+        r: sr, c: sc, dist: start_dist, dist_to_end: man_dist(er, ec, sr, sc)
     });
-
     fn push(heap: &mut BinaryHeap<State>, visited: &mut HashSet<(isize, isize, isize)>, r: isize, c: isize, dist: isize, er: isize, ec: isize) {
         if !visited.contains(&(r, c, dist)) {
             visited.insert((r, c, dist));
@@ -126,7 +105,6 @@ pub fn part1(input: &str) -> isize {
         for (rr, cc) in DT.iter() {
             let (r, c) = (state.r + *rr, state.c + *cc);
             if r == er && c == ec {
-                map.print_at_tick(state.dist);
                 return state.dist + 1;
             }
             if map.can_go(r, c, state.dist + 1) {
@@ -138,11 +116,21 @@ pub fn part1(input: &str) -> isize {
             push(&mut heap, &mut visited, state.r, state.c, state.dist + 1, er, ec);
         }
     }
-    panic!("cant find a path");
+    unreachable!()
+}
+
+pub fn part1(input: &str) -> isize {
+    let mut map = parse(input);
+    let (er, ec) = (map.r - 1, map.c - 2);
+    astar(&mut map, 0, 1, er, ec, 0)
 }
 
 pub fn part2(input: &str) -> isize {
-    0
+    let mut map = parse(input);
+    let (er, ec) = (map.r - 1, map.c - 2);
+    let one = astar(&mut map, 0, 1, er, ec, 0);
+    let two = astar(&mut map, er, ec, 0, 1, one);
+    astar(&mut map, 0, 1, er, ec, two)
 }
 
 #[test]
@@ -154,4 +142,5 @@ fn test() {
 #<^v^^>#
 ######.#";
     assert_eq!(part1(input), 18);
+    assert_eq!(part2(input), 54);
 }
