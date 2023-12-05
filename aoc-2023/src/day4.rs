@@ -25,14 +25,14 @@ fn parse(input: &str) -> Vec<Card> {
             Card {
                 win: parse_card(line.next().unwrap()),
                 draw: parse_card(line.next().unwrap())
-            } 
+            }
         }).collect()
 }
 
 #[aoc(day4, part1)]
 fn part1(input: &[Card]) -> u32 {
     input.iter().map(|c| {
-        let win = c.winning();;
+        let win = c.winning();
         if win > 0 { 1 << (win - 1) }
         else { 0 }
     }).sum::<usize>() as u32
