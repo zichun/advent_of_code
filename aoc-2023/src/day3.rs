@@ -1,5 +1,4 @@
-use aoc_runner_derive::{aoc_generator, aoc};
-use regex::Regex;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
 enum Type {

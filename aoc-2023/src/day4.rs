@@ -1,5 +1,4 @@
-use aoc_runner_derive::{aoc_generator, aoc};
-use std::collections::{VecDeque, HashSet};
+use crate::prelude::*;
 
 struct Card {
     win: HashSet<u32>,
@@ -14,17 +13,14 @@ impl Card {
 
 #[aoc_generator(day4)]
 fn parse(input: &str) -> Vec<Card> {
-    fn parse_card(s: &str) -> HashSet<u32> {
-        s.split(" ").filter_map(|t| t.trim().parse::<u32>().ok()).collect()
-    }
     input.split("\n")
         .map(|line| {
             let mut line = line.split(": ");
             let _ = line.next().unwrap();
             let mut line = line.next().unwrap().split(" | ");
             Card {
-                win: parse_card(line.next().unwrap()),
-                draw: parse_card(line.next().unwrap())
+                win: line.next().unwrap().extract_tokens::<u32>().collect(),
+                draw: line.next().unwrap().extract_tokens::<u32>().collect(),
             }
         }).collect()
 }

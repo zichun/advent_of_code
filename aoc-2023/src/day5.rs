@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use aoc_runner_derive::{aoc_generator, aoc};
+use crate::prelude::*;
 
 #[derive(Debug)]
 struct Mapping {
@@ -18,14 +18,14 @@ struct Input {
 fn parse(input: &str) -> Input {
     let mut inputs = input.split("\n\n");
     let seeds = inputs.next().unwrap().split(": ")
-        .skip(1).next().unwrap().split(" ").map(|s| s.parse::<u32>().unwrap()).collect();
+        .skip(1).next().unwrap().parse_tokens::<u32>().collect();
     let maps = inputs.map(|map| {
         let mut map = map.split("\n").skip(1).map(|map_line| {
             let mut tokens = map_line.split(" ");
             Mapping {
-                dest: tokens.next().unwrap().parse::<u32>().unwrap(),
-                source: tokens.next().unwrap().parse::<u32>().unwrap(),
-                range: tokens.next().unwrap().parse::<u32>().unwrap(),
+                dest: tokens.next_token(),
+                source: tokens.next_token(),
+                range: tokens.next_token(),
             }
         }).collect::<Vec<_>>();
         map.sort_by(|a, b| a.source.cmp(&b.source));

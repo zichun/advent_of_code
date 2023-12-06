@@ -1,4 +1,4 @@
-use aoc_runner_derive::{aoc_generator, aoc};
+use crate::prelude::*;
 
 fn to_digits(line: &str) -> (u32, u32) {
     let mut min = None;

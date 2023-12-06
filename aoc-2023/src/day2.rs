@@ -1,4 +1,4 @@
-use aoc_runner_derive::{aoc_generator, aoc};
+use crate::prelude::*;
 
 struct Balls {
     red: u32,
