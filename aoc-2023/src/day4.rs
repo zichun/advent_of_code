@@ -13,7 +13,8 @@ impl Card {
 
 #[aoc_generator(day4)]
 fn parse(input: &str) -> Vec<Card> {
-    input.split("\n")
+    input
+        .split("\n")
         .map(|line| {
             let mut line = line.split(": ");
             let _ = line.next().unwrap();
@@ -22,35 +23,45 @@ fn parse(input: &str) -> Vec<Card> {
                 win: line.next().unwrap().extract_tokens::<u32>().collect(),
                 draw: line.next().unwrap().extract_tokens::<u32>().collect(),
             }
-        }).collect()
+        })
+        .collect()
 }
 
 #[aoc(day4, part1)]
 fn part1(input: &[Card]) -> u32 {
-    input.iter().map(|c| {
-        let win = c.winning();
-        if win > 0 { 1 << (win - 1) }
-        else { 0 }
-    }).sum::<usize>() as u32
+    input
+        .iter()
+        .map(|c| {
+            let win = c.winning();
+            if win > 0 {
+                1 << (win - 1)
+            } else {
+                0
+            }
+        })
+        .sum::<usize>() as u32
 }
 
 #[aoc(day4, part2)]
 fn part2(input: &[Card]) -> u32 {
     let mut q = VecDeque::new();
-    input.iter().map(|c| {
-        let win = c.winning();
-        let cards = if q.len() > 0 {
-            q.pop_front().unwrap() + 1
-        } else {
-            1
-        };
-        for i in 0..win {
-            if q.len() > i {
-                q[i] += cards;
+    input
+        .iter()
+        .map(|c| {
+            let win = c.winning();
+            let cards = if q.len() > 0 {
+                q.pop_front().unwrap() + 1
             } else {
-                q.push_back(cards);
+                1
+            };
+            for i in 0..win {
+                if q.len() > i {
+                    q[i] += cards;
+                } else {
+                    q.push_back(cards);
+                }
             }
-        }
-        cards
-    }).sum::<usize>() as u32
+            cards
+        })
+        .sum::<usize>() as u32
 }

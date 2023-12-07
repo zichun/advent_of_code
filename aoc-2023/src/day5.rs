@@ -17,43 +17,55 @@ struct Input {
 #[aoc_generator(day5)]
 fn parse(input: &str) -> Input {
     let mut inputs = input.split("\n\n");
-    let seeds = inputs.next().unwrap().split(": ")
-        .skip(1).next().unwrap().parse_tokens::<u32>().collect();
-    let maps = inputs.map(|map| {
-        let mut map = map.split("\n").skip(1).map(|map_line| {
-            let mut tokens = map_line.split(" ");
-            Mapping {
-                dest: tokens.next_token(),
-                source: tokens.next_token(),
-                range: tokens.next_token(),
-            }
-        }).collect::<Vec<_>>();
-        map.sort_by(|a, b| a.source.cmp(&b.source));
-        map
-    }).collect();
-    Input {
-        seeds,
-        maps,
-    }
+    let seeds = inputs
+        .next()
+        .unwrap()
+        .split(": ")
+        .skip(1)
+        .next()
+        .unwrap()
+        .parse_tokens::<u32>()
+        .collect();
+    let maps = inputs
+        .map(|map| {
+            let mut map = map
+                .split("\n")
+                .skip(1)
+                .map(|map_line| {
+                    let mut tokens = map_line.split(" ");
+                    Mapping {
+                        dest: tokens.next_token(),
+                        source: tokens.next_token(),
+                        range: tokens.next_token(),
+                    }
+                })
+                .collect::<Vec<_>>();
+            map.sort_by(|a, b| a.source.cmp(&b.source));
+            map
+        })
+        .collect();
+    Input { seeds, maps }
 }
 
 #[aoc(day5, part1)]
 fn part1(input: &Input) -> u32 {
-    input.seeds.iter()
+    input
+        .seeds
+        .iter()
         .map(|seed| {
-            let location = input.maps.iter().fold(
-                *seed,
-                |acc, el| {
-                    match el.iter().find(|mapping| acc >= mapping.source && acc < mapping.source + mapping.range) {
-                        Some(mapping) => {
-                            mapping.dest + acc - mapping.source
-                        }
-                        None => acc
-                    }
-                });
+            let location = input.maps.iter().fold(*seed, |acc, el| {
+                match el
+                    .iter()
+                    .find(|mapping| acc >= mapping.source && acc < mapping.source + mapping.range)
+                {
+                    Some(mapping) => mapping.dest + acc - mapping.source,
+                    None => acc,
+                }
+            });
             location
         })
-        .min().unwrap()
+        .min()
+        .unwrap()
 }
 
 #[aoc(day5, part2)]
@@ -101,7 +113,7 @@ fn part2(input: &Input) -> u32 {
                         } else {
                             continue 'map_iter;
                         }
-                    },
+                    }
                     None => break 'map_iter,
                 }
             }
