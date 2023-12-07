@@ -2,6 +2,9 @@ use crate::prelude::*;
 
 #[derive(Clone, Eq, PartialEq, Ord)]
 struct Card {
+    // hand is representated by a tuple:
+    //   - sorted cardinalities of values, e.g 2 pairs would be [2, 2, 1] and full house would be [3, 2]
+    //   - list of original value, e.g T55J5 would be [10, 5, 5, 11, 5]
     hand: (Vec<usize>, Vec<u32>),
     bid: u32,
 }
@@ -87,7 +90,7 @@ fn parse(inp: &str) -> Vec<Card> {
 }
 
 #[aoc(day7, part1)]
-fn parse1(input: &[Card]) -> u32 {
+fn part1(input: &[Card]) -> u32 {
     let mut cards = input.to_vec();
     cards.sort();
     cards
@@ -98,7 +101,7 @@ fn parse1(input: &[Card]) -> u32 {
 }
 
 #[aoc(day7, part2)]
-fn parse2(input: &[Card]) -> u32 {
+fn part2(input: &[Card]) -> u32 {
     let mut cards = input.to_vec();
     cards.iter_mut().for_each(|c| c.process_joker());
     cards.sort();
