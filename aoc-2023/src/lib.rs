@@ -5,6 +5,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 pub mod prelude {
     pub use aoc_runner_derive::{aoc, aoc_generator};
