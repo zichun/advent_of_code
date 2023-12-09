@@ -21,7 +21,7 @@ impl Input {
                             'L' => &self.map[loc].0,
                             'R' => &self.map[loc].1,
                             _ => unreachable!(),
-                        }
+                        },
                     ))
                 }
             })
