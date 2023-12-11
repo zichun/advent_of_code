@@ -15,18 +15,15 @@ fn parse(inp: &str) -> Vec<(usize, usize)> {
 fn add_1d<F: Fn((usize, usize)) -> usize>(inp: &mut Vec<(usize, usize)>, f: F, mul: u64) -> u64 {
     inp.sort_by(|a, b| f(*a).cmp(&f(*b)));
     let mut sum = 0;
-    for i in 0..inp.len() {
-        let mut acc = 0;
-        for j in i+1..inp.len() {
-            if f(inp[j]) > f(inp[j-1]) {
-                acc += mul * ((f(inp[j]) - f(inp[j-1]) - 1) as u64) + 1;
-            }
-            sum += acc;
+    for i in 1..inp.len() {
+        if f(inp[i]) > f(inp[i-1]) {
+            let acc = mul * ((f(inp[i]) - f(inp[i-1]) - 1) as u64) + 1;
+            sum += acc * ((inp.len() - i) * i) as usize as u64;
         }
     }
+
     sum
 }
-
 
 #[aoc(day11, part1)]
 fn part1(inp: &Vec<(usize, usize)>) -> u64 {
