@@ -69,30 +69,38 @@ impl Grid {
 
     // Expands the grid by 2 and add connecting pipes
     fn expand(&self) -> Self {
-        let map = (0..self.max_row * 2).map(|r| {
-            (0..self.max_col * 2).map(|c| {
-                let c = if r % 2 == 0 && c % 2 == 0 {
-                    self.map[r / 2][c / 2]
-                } else if r % 2 == 1 && c % 2 == 1 || r + 1 == self.max_row * 2 || c + 1 == self.max_col * 2 {
-                    '.'
-                } else if r % 2 == 1 {
-                    let (top, bot) = (self.map[r / 2][c / 2], self.map[r / 2 + 1][c / 2]);
-                    if Dir::Down.include(top) && Dir::Up.include(bot) {
-                        '|'
-                    } else {
-                        '.'
-                    }
-                } else {
-                    let (left, right) = (self.map[r / 2][c / 2], self.map[r / 2][c / 2 + 1]);
-                    if Dir::Right.include(left) && Dir::Left.include(right) {
-                        '-'
-                    } else {
-                        '.'
-                    }
-                };
-                c
-            }).collect()
-        }).collect();
+        let map = (0..self.max_row * 2)
+            .map(|r| {
+                (0..self.max_col * 2)
+                    .map(|c| {
+                        let c = if r % 2 == 0 && c % 2 == 0 {
+                            self.map[r / 2][c / 2]
+                        } else if r % 2 == 1 && c % 2 == 1
+                            || r + 1 == self.max_row * 2
+                            || c + 1 == self.max_col * 2
+                        {
+                            '.'
+                        } else if r % 2 == 1 {
+                            let (top, bot) = (self.map[r / 2][c / 2], self.map[r / 2 + 1][c / 2]);
+                            if Dir::Down.include(top) && Dir::Up.include(bot) {
+                                '|'
+                            } else {
+                                '.'
+                            }
+                        } else {
+                            let (left, right) =
+                                (self.map[r / 2][c / 2], self.map[r / 2][c / 2 + 1]);
+                            if Dir::Right.include(left) && Dir::Left.include(right) {
+                                '-'
+                            } else {
+                                '.'
+                            }
+                        };
+                        c
+                    })
+                    .collect()
+            })
+            .collect();
         Self {
             max_row: self.max_row * 2,
             max_col: self.max_col * 2,
@@ -219,7 +227,7 @@ fn part2(g: &Grid) -> u32 {
             if !visited[r][c] {
                 sum += match flood_fill(&g, &mut visited, r, c) {
                     Some(s) => s,
-                    None => 0
+                    None => 0,
                 };
             }
         }
