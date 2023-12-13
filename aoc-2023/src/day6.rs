@@ -21,8 +21,7 @@ fn part2(input: &str) -> u64 {
         .lines()
         .map(|l| {
             l.split(": ")
-                .skip(1)
-                .next()
+                .nth(1)
                 .unwrap()
                 .extract_tokens::<String>()
                 .join("")

@@ -14,7 +14,7 @@ impl Card {
 #[aoc_generator(day4)]
 fn parse(input: &str) -> Vec<Card> {
     input
-        .split("\n")
+        .split('\n')
         .map(|line| {
             let mut line = line.split(": ");
             let _ = line.next().unwrap();
@@ -49,7 +49,7 @@ fn part2(input: &[Card]) -> u32 {
         .iter()
         .map(|c| {
             let win = c.winning();
-            let cards = if q.len() > 0 {
+            let cards = if !q.is_empty() {
                 q.pop_front().unwrap() + 1
             } else {
                 1

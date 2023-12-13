@@ -60,9 +60,9 @@ fn part2(input: &Input) -> u64 {
     input
         .map
         .keys()
-        .filter(|k| k.ends_with("A"))
+        .filter(|k| k.ends_with('A'))
         .collect::<Vec<&String>>()
         .iter()
-        .map(|node| input.traverse(node, |node| node.ends_with("Z")).0 as u64)
-        .fold(1, |acc, el| lcm(acc, el))
+        .map(|node| input.traverse(node, |node| node.ends_with('Z')).0 as u64)
+        .fold(1, lcm)
 }

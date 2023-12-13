@@ -2,6 +2,7 @@ mod day1;
 mod day10;
 mod day11;
 mod day12;
+mod day13;
 mod day2;
 mod day3;
 mod day4;
@@ -11,7 +12,10 @@ mod day7;
 mod day8;
 mod day9;
 
+pub mod grid;
+
 pub mod prelude {
+    pub use crate::grid::*;
     pub use aoc_runner_derive::{aoc, aoc_generator};
     pub use itertools::{iproduct, Itertools};
     pub use regex::{Captures, Regex};

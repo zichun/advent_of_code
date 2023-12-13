@@ -21,18 +21,17 @@ fn parse(input: &str) -> Input {
         .next()
         .unwrap()
         .split(": ")
-        .skip(1)
-        .next()
+        .nth(1)
         .unwrap()
         .parse_tokens::<u32>()
         .collect();
     let maps = inputs
         .map(|map| {
             let mut map = map
-                .split("\n")
+                .split('\n')
                 .skip(1)
                 .map(|map_line| {
-                    let mut tokens = map_line.split(" ");
+                    let mut tokens = map_line.split(' ');
                     Mapping {
                         dest: tokens.next_token(),
                         source: tokens.next_token(),
@@ -73,14 +72,9 @@ fn part2(input: &Input) -> u32 {
     let mut seeds: Vec<Range<u32>> = Vec::new();
 
     let mut seeds_inp = input.seeds.iter();
-    loop {
-        match seeds_inp.next() {
-            Some(start) => {
-                let len = seeds_inp.next().unwrap();
-                seeds.push(*start..(start + len));
-            }
-            None => break,
-        }
+    while let Some(start) = seeds_inp.next() {
+        let len = seeds_inp.next().unwrap();
+        seeds.push(*start..(start + len));
     }
     seeds.sort_by(|a, b| a.start.cmp(&b.start));
 
@@ -133,7 +127,7 @@ fn part2(input: &Input) -> u32 {
             } else {
                 let last = &mut acc[len - 1];
                 if el.start <= last.end {
-                    (*last).end = (*last).end.max(el.end);
+                    last.end = last.end.max(el.end);
                 } else {
                     acc.push(el.clone());
                 }

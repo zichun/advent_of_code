@@ -8,13 +8,20 @@ struct Input {
 
 #[aoc_generator(day12)]
 fn parse(inp: &str) -> Vec<Input> {
-    inp.lines().map(|l| {
-        let mut l = l.split(" ");
-        Input {
-            pattern: l.next().unwrap().to_owned().chars().collect(),
-            damages: l.next().unwrap().split(",").map(|n| n.parse::<u64>().unwrap()).collect(),
-        }
-    }).collect()
+    inp.lines()
+        .map(|l| {
+            let mut l = l.split(" ");
+            Input {
+                pattern: l.next().unwrap().to_owned().chars().collect(),
+                damages: l
+                    .next()
+                    .unwrap()
+                    .split(",")
+                    .map(|n| n.parse::<u64>().unwrap())
+                    .collect(),
+            }
+        })
+        .collect()
 }
 
 fn solve(inp: &Input) -> u64 {
@@ -49,8 +56,7 @@ fn solve(inp: &Input) -> u64 {
         let tr = match inp.pattern[i] {
             '.' => f(inp, i + 1, j, memo),
             '#' => eat(inp, i, j, memo),
-            '?' => eat(inp, i, j, memo) +
-                f(inp, i + 1, j, memo),
+            '?' => eat(inp, i, j, memo) + f(inp, i + 1, j, memo),
             _ => unreachable!(),
         };
         memo[i][j] = Some(tr);
@@ -68,13 +74,26 @@ fn part1(inp: &[Input]) -> u64 {
 
 #[aoc(day12, part2)]
 fn part2(inp: &[Input]) -> u64 {
-    inp.iter().map(|inp| {
-        let mut pat = inp.pattern.clone();
-        pat.push('?');
-        let inp = Input {
-            pattern: pat.iter().cycle().take(pat.len() * 5 - 1).map(|l| *l).collect(),
-            damages: inp.damages.iter().cycle().take(inp.damages.len() * 5).map(|l| *l).collect(),
-        };
-        solve(&inp)
-    }).sum()
+    inp.iter()
+        .map(|inp| {
+            let mut pat = inp.pattern.clone();
+            pat.push('?');
+            let inp = Input {
+                pattern: pat
+                    .iter()
+                    .cycle()
+                    .take(pat.len() * 5 - 1)
+                    .map(|l| *l)
+                    .collect(),
+                damages: inp
+                    .damages
+                    .iter()
+                    .cycle()
+                    .take(inp.damages.len() * 5)
+                    .map(|l| *l)
+                    .collect(),
+            };
+            solve(&inp)
+        })
+        .sum()
 }

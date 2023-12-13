@@ -14,7 +14,7 @@ fn parse(inp: &str) -> Vec<Seq> {
             let diffs = inp
                 .iter()
                 .tuple_windows()
-                .map(|(a, b)| (*b - *a) as i64)
+                .map(|(a, b)| *b - *a)
                 .collect::<Vec<_>>();
             process(&diffs, collector);
         }

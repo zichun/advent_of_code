@@ -22,7 +22,7 @@ impl Card {
             .0
             .iter()
             .fold((false, Vec::new()), |(found, mut v), el| {
-                if found || !found && *el != jokers {
+                if found || *el != jokers {
                     v.push(*el);
                     (found, v)
                 } else {
@@ -30,7 +30,7 @@ impl Card {
                 }
             })
             .1;
-        if cardinalities.len() > 0 {
+        if !cardinalities.is_empty() {
             cardinalities[0] += jokers;
         } else {
             cardinalities.push(jokers);
@@ -42,12 +42,12 @@ impl PartialOrd for Card {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         for (asize, bsize) in std::iter::zip(&self.hand.0, &other.hand.0) {
             if asize != bsize {
-                return Some(asize.cmp(&bsize));
+                return Some(asize.cmp(bsize));
             }
         }
         for (acard, bcard) in std::iter::zip(&self.hand.1, &other.hand.1) {
             if acard != bcard {
-                return Some(acard.cmp(&bcard));
+                return Some(acard.cmp(bcard));
             }
         }
         unreachable!()
@@ -72,15 +72,14 @@ fn parse(inp: &str) -> Vec<Card> {
         let mut cnt: Vec<usize> = cards
             .iter()
             .counts()
-            .into_iter()
-            .map(|(_, cnt)| cnt)
+            .into_values()
             .collect();
         cnt.sort_by(|a, b| b.cmp(a));
         (cnt, cards)
     }
     inp.lines()
         .map(|l| {
-            let mut l = l.split(" ");
+            let mut l = l.split(' ');
             Card {
                 hand: parse_hand(&l.next_token::<String>()),
                 bid: l.next_token(),
