@@ -1,9 +1,18 @@
+#[derive(Clone, PartialEq, Eq)]
 pub struct Grid<T>(pub Vec<Vec<T>>);
 
 #[allow(dead_code)]
 impl<T> Grid<T> {
     pub fn dimensions(&self) -> (usize, usize) {
         (self.0.len(), self.0[0].len())
+    }
+    pub fn dimensions_with_rot(&self, cw_times: usize) -> (usize, usize) {
+        let (mr, mc) = self.dimensions();
+        if cw_times % 2 == 0 {
+            (mr, mc)
+        } else {
+            (mc, mr)
+        }
     }
 
     pub fn print(&self)
@@ -21,6 +30,33 @@ impl<T> Grid<T> {
         T: Copy,
     {
         Grid(self.cols().map(|r| r.copied().collect()).collect())
+    }
+
+    pub fn set(&mut self, r: usize, c: usize, t: T) {
+        self.0[r][c] = t;
+    }
+    pub fn set_with_rot(&mut self, r: usize, c: usize, cw_times: usize, t: T) {
+        let (r, c) = self.coord_with_rot(r, c, cw_times);
+        self.0[r][c] = t;
+    }
+
+    pub fn get<'a>(&'a self, r: usize, c: usize) -> &'a T {
+        &self.0[r][c]
+    }
+    pub fn coord_with_rot(&self, r: usize, c: usize, cw_times: usize) -> (usize, usize) {
+        let cw_times = cw_times % 4;
+        let (mr, _) = self.dimensions_with_rot(cw_times);
+        match cw_times {
+            0 => (r, c),
+            1 => (c, r),
+            2 => (mr - r - 1, c),
+            3 => (c, mr - r - 1),
+            _ => unreachable!(),
+        }
+    }
+    pub fn get_with_rot<'a>(&'a self, r: usize, c: usize, cw_times: usize) -> &'a T {
+        let (r, c) = self.coord_with_rot(r, c, cw_times);
+        &self.0[r][c]
     }
 
     pub fn cols(&self) -> GridLinesIter<T> {
@@ -60,7 +96,8 @@ impl<T> Grid<T> {
 }
 
 impl<T> std::str::FromStr for Grid<T>
-where T: From<char>,
+where
+    T: From<char>,
 {
     type Err = ();
 

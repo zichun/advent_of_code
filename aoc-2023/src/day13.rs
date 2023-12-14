@@ -4,7 +4,9 @@ use crate::prelude::*;
 
 #[aoc_generator(day13)]
 fn parse(inp: &str) -> Vec<Grid<char>> {
-    inp.split("\n\n").map(|inp| Grid::from_str(inp).unwrap()).collect()
+    inp.split("\n\n")
+        .map(|inp| Grid::from_str(inp).unwrap())
+        .collect()
 }
 
 fn reflection(g: &Grid<char>, smudge: usize) -> u32 {
