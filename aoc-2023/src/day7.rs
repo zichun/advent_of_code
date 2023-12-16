@@ -69,11 +69,7 @@ fn parse(inp: &str) -> Vec<Card> {
                 _ => unreachable!(),
             })
             .collect();
-        let mut cnt: Vec<usize> = cards
-            .iter()
-            .counts()
-            .into_values()
-            .collect();
+        let mut cnt: Vec<usize> = cards.iter().counts().into_values().collect();
         cnt.sort_by(|a, b| b.cmp(a));
         (cnt, cards)
     }

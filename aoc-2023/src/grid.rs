@@ -1,3 +1,64 @@
+use enum_iterator::{all, first, last, next, previous, All, Sequence};
+
+#[derive(Clone, Copy, PartialEq, Eq, Sequence)]
+pub enum Direction {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+impl Direction {
+    pub fn go(&self, r: isize, c: isize) -> (isize, isize) {
+        let (dr, dc) = self.as_delta();
+        (r + dr, c + dc)
+    }
+    pub fn iter() -> All<Direction> {
+        all::<Self>()
+    }
+    pub fn opp(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Down,
+            Direction::Right => Direction::Left,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+        }
+    }
+    pub fn next(&self) -> Self {
+        match next(self) {
+            None => first::<Self>().unwrap(),
+            Some(d) => d,
+        }
+    }
+    pub fn prev(&self) -> Self {
+        match previous(self) {
+            None => last::<Self>().unwrap(),
+            Some(d) => d,
+        }
+    }
+    pub fn is_updown(&self) -> bool {
+        *self == Direction::Up || *self == Direction::Down
+    }
+    pub fn is_leftright(&self) -> bool {
+        *self == Direction::Left || *self == Direction::Right
+    }
+    pub fn as_delta(&self) -> (isize, isize) {
+        match self {
+            Direction::Up => (-1, 0),
+            Direction::Right => (0, 1),
+            Direction::Down => (1, 0),
+            Direction::Left => (0, -1),
+        }
+    }
+    pub fn ind(&self) -> usize {
+        match self {
+            Direction::Up => 0,
+            Direction::Right => 1,
+            Direction::Down => 2,
+            Direction::Left => 3,
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct Grid<T>(pub Vec<Vec<T>>);
 
@@ -42,6 +103,15 @@ impl<T> Grid<T> {
 
     pub fn get<'a>(&'a self, r: usize, c: usize) -> &'a T {
         &self.0[r][c]
+    }
+    pub fn coord_with_dir(&self, r: usize, c: usize, dir: Direction) -> Option<(usize, usize)> {
+        let (r, c) = dir.go(r as isize, c as isize);
+        let (mr, mc) = self.dimensions();
+        if r < 0 || c < 0 || r >= mr as isize || c >= mc as isize {
+            None
+        } else {
+            Some((r as usize, c as usize))
+        }
     }
     pub fn coord_with_rot(&self, r: usize, c: usize, cw_times: usize) -> (usize, usize) {
         let cw_times = cw_times % 4;

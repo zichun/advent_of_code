@@ -52,7 +52,9 @@ fn part2(inp: &Grid) -> u32 {
     fn findcycle(weights: &[u32]) -> Option<usize> {
         if weights.len() > 4 {
             for cy in 2..weights.len() / 2 {
-                if weights[weights.len() - cy..weights.len()] == weights[weights.len() - cy - cy..weights.len() - cy] {
+                if weights[weights.len() - cy..weights.len()]
+                    == weights[weights.len() - cy - cy..weights.len() - cy]
+                {
                     return Some(cy);
                 }
             }
@@ -66,7 +68,7 @@ fn part2(inp: &Grid) -> u32 {
         weights.push(north_weight(&inp));
         match findcycle(&weights) {
             Some(cy) => break cy,
-            None => ()
+            None => (),
         }
     };
     let t = weights.len() - cy - cy + 1;
