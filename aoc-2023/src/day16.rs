@@ -1,8 +1,6 @@
-use std::str::FromStr;
-
 use crate::prelude::*;
 
-type Grid = crate::grid::Grid<char>;
+type Grid = crate::prelude::Grid<char>;
 
 #[aoc_generator(day16)]
 fn parse(inp: &str) -> Grid {

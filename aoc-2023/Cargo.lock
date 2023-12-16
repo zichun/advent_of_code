@@ -15,12 +15,19 @@ dependencies = [
 name = "aoc-2022-test"
 version = "0.1.0"
 dependencies = [
+ "aoc-helper",
  "aoc-runner",
  "aoc-runner-derive",
- "enum-iterator",
  "itertools",
- "num",
  "regex",
+]
+
+[[package]]
+name = "aoc-helper"
+version = "0.1.0"
+dependencies = [
+ "enum-iterator",
+ "num",
 ]
 
 [[package]]
