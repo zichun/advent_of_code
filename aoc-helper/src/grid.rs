@@ -163,18 +163,29 @@ impl<T> Grid<T> {
             row_iter: true,
         }
     }
+
+    pub fn into<U>(&self) -> Grid<U>
+    where T: Into<U> + Copy {
+        Grid(self.0.iter().map(|r| r.iter().map(|c| U::from((*c).into())).collect()).collect())
+    }
+
+    pub fn into_f<F, U>(&self, f: F) -> Grid<U>
+    where F: Fn(T) -> U, T: Copy {
+        Grid(self.0.iter().map(|r| r.iter().map(|c| f(*c)).collect()).collect())
+    }
 }
 
 impl<T> std::str::FromStr for Grid<T>
 where
-    T: From<char>,
+    T: From<char> + std::str::FromStr,
+    <T as std::str::FromStr>::Err: std::fmt::Debug
 {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Grid(
             s.lines()
-                .map(|l| l.chars().map(|c| c.into()).collect())
+                .map(|l| l.chars().map(|c| c.to_string().parse::<T>().unwrap()).collect())
                 .collect(),
         ))
     }
