@@ -44,7 +44,12 @@ fn solve(inp: &[Instruction]) -> usize {
     hors.sort();
 
     let mut area = 0;
-    let rows = hors.iter().map(|(r, _, _)| r).copied().unique().collect::<Vec<_>>();
+    let rows = hors
+        .iter()
+        .map(|(r, _, _)| r)
+        .copied()
+        .unique()
+        .collect::<Vec<_>>();
 
     // calculate in betweens
     rows.iter().tuple_windows().for_each(|(r0, r1)| {
@@ -66,15 +71,20 @@ fn solve(inp: &[Instruction]) -> usize {
     #[derive(Debug, Eq, PartialEq)]
     enum Pt {
         Hor(isize, isize),
-        Vert
+        Vert,
     }
 
     rows.iter().for_each(|r| {
-        let mut pts = hors.iter().filter(|(r1, _, _)| r1 == r)
+        let mut pts = hors
+            .iter()
+            .filter(|(r1, _, _)| r1 == r)
             .map(|(_, c0, c1)| (c0, Pt::Hor(*c0, *c1)))
             .chain(
-                verts.iter().filter(|(_, top, bot)| top <= r && r < bot)
-                    .map(|(c, _, _)| (c, Pt::Vert)))
+                verts
+                    .iter()
+                    .filter(|(_, top, bot)| top <= r && r < bot)
+                    .map(|(c, _, _)| (c, Pt::Vert)),
+            )
             .collect::<Vec<_>>();
 
         pts.sort_by(|a, b| {
@@ -91,24 +101,28 @@ fn solve(inp: &[Instruction]) -> usize {
         let mut left = isize::MIN;
         let mut outside = true;
         pts.iter().for_each(|(c, pt)| {
-            if !outside && **c > left{
+            if !outside && **c > left {
                 area += **c - left - 1;
             }
             match pt {
-                Pt::Hor(_, c1) => {
-                    left = *c1
-                },
+                Pt::Hor(_, c1) => left = *c1,
                 Pt::Vert => {
                     left = **c;
                     outside = !outside;
-                },
+                }
             }
         });
     });
 
     // add individual segments
-    area += hors.iter().map(|(_, left, right)| *right + 1 - *left).sum::<isize>();
-    area += verts.iter().map(|(_, top, bot)| *bot - *top - 1).sum::<isize>();
+    area += hors
+        .iter()
+        .map(|(_, left, right)| *right + 1 - *left)
+        .sum::<isize>();
+    area += verts
+        .iter()
+        .map(|(_, top, bot)| *bot - *top - 1)
+        .sum::<isize>();
 
     area as usize
 }
