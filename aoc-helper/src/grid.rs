@@ -1,6 +1,6 @@
 use enum_iterator::{all, first, last, next, previous, All, Sequence};
 
-#[derive(Clone, Copy, PartialEq, Eq, Sequence)]
+#[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug)]
 pub enum Direction {
     Up,
     Right,
@@ -56,6 +56,29 @@ impl Direction {
             Direction::Down => 2,
             Direction::Left => 3,
         }
+    }
+    pub fn from_ind(ind: usize) -> Direction {
+        match ind % 4{
+            0 => Direction::Up,
+            1 => Direction::Right,
+            2 => Direction::Down,
+            3 => Direction::Left,
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::str::FromStr for Direction {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "E" | "R" | "e" | "r" => Direction::Right,
+            "N" | "U" | "n" | "u" => Direction::Up,
+            "W" | "L" | "w" | "l" => Direction::Left,
+            "S" | "D" | "s" | "d" => Direction::Down,
+            _ => unreachable!()
+        })
     }
 }
 
