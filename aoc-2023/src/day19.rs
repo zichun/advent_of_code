@@ -37,20 +37,6 @@ impl Rule {
             to: inp.next().unwrap().to_owned(),
         }
     }
-    fn check(&self, p: &Part) -> bool {
-        let pvalue = match self.el {
-            'x' => p.x,
-            'm' => p.m,
-            'a' => p.a,
-            's' => p.s,
-            _ => unreachable!(),
-        };
-        match self.ord {
-            '<' => pvalue < self.check,
-            '>' => pvalue > self.check,
-            _ => unreachable!(),
-        }
-    }
 }
 struct Rules {
     check: Vec<Rule>,
@@ -69,13 +55,6 @@ impl Rules {
                 }
             });
         Self { check, last }
-    }
-    fn get_next(&self, part: &Part) -> String {
-        if let Some(r) = self.check.iter().find(|rule| rule.check(part)) {
-            r.to.clone()
-        } else {
-            self.last.clone()
-        }
     }
 }
 struct Input {
@@ -100,23 +79,8 @@ fn parse(inp: &str) -> Input {
     Input { graph, parts }
 }
 
-#[aoc(day19, part1)]
-fn part1(inp: &Input) -> u32 {
-    inp.parts
-        .iter()
-        .filter(|part| {
-            let mut cur = "in".to_owned();
-            while cur != "A" && cur != "R" {
-                cur = inp.graph[&cur].get_next(part);
-            }
-            cur == "A"
-        })
-        .map(|p| p.x + p.m + p.a + p.s)
-        .sum()
-}
-
 #[derive(Default, Clone, Debug)]
-struct Constraint(Vec<(u32, u32)>);
+struct Constraint(Option<(u32, u32)>);
 impl Constraint {
     fn intersect(&mut self, rule: &Rule, opp: bool) {
         let (ord, check) = if opp {
@@ -131,30 +95,28 @@ impl Constraint {
         self.0 = match ord {
             '<' => self
                 .0
-                .iter()
-                .filter_map(|(l, r)| {
-                    if check >= *r {
-                        Some((*l, *r))
-                    } else if check <= *l {
+                .map(|(l, r)| {
+                    if check >= r {
+                        Some((l, r))
+                    } else if check <= l {
                         None
                     } else {
-                        Some((*l, check - 1))
+                        Some((l, check - 1))
                     }
                 })
-                .collect(),
+                .flatten(),
             '>' => self
                 .0
-                .iter()
-                .filter_map(|(l, r)| {
-                    if check <= *l {
-                        Some((*l, *r))
-                    } else if check >= *r {
+                .map(|(l, r)| {
+                    if check <= l {
+                        Some((l, r))
+                    } else if check >= r {
                         None
                     } else {
-                        Some((check + 1, *r))
+                        Some((check + 1, r))
                     }
                 })
-                .collect(),
+                .flatten(),
             _ => unreachable!(),
         };
     }
@@ -163,6 +125,12 @@ impl Constraint {
             .iter()
             .map(|(l, r)| (r + 1 - l) as u64)
             .product::<u64>()
+    }
+    fn fits(&self, p: u32) -> bool {
+        match self.0 {
+            Some((a, b)) => p >= a && p <= b,
+            None => false,
+        }
     }
 }
 #[derive(Default, Clone, Debug)]
@@ -173,6 +141,17 @@ struct PartConstraint {
     s: Constraint,
 }
 impl PartConstraint {
+    fn with_range(left: u32, right: u32) -> Self {
+        PartConstraint {
+            x: Constraint(Some((left, right))),
+            m: Constraint(Some((left, right))),
+            a: Constraint(Some((left, right))),
+            s: Constraint(Some((left, right))),
+        }
+    }
+    fn fits(&self, p: &Part) -> bool {
+        self.x.fits(p.x) && self.m.fits(p.m) && self.a.fits(p.a) && self.s.fits(p.s)
+    }
     fn intersect(&self, r: &Rule, opp: bool) -> Self {
         let mut res = self.clone();
         match r.el {
@@ -184,43 +163,69 @@ impl PartConstraint {
         }
         res
     }
-    fn score(&self) -> u64 {
+    fn combinations(&self) -> u64 {
         self.x.score() * self.m.score() * self.a.score() * self.s.score()
     }
 }
 
-#[aoc(day19, part2)]
-fn part2(inp: &Input) -> u64 {
-    fn solve(inp: &Input, cur: String, mut constraint: PartConstraint, dep: usize) -> u64 {
-        if cur == "R" {
-            return 0;
-        } else if cur == "A" {
-            return constraint.score();
-        }
+fn get_constraints(
+    inp: &Input,
+    cur: String,
+    mut constraint: PartConstraint,
+    dep: usize,
+) -> Vec<PartConstraint> {
+    if cur == "R" {
+        return Vec::new();
+    } else if cur == "A" {
+        return vec![constraint];
+    }
 
-        let mut tr = inp.graph[&cur].check.iter().fold(0, |tr, rule| {
-            let solved = solve(
+    let mut tr = inp.graph[&cur]
+        .check
+        .iter()
+        .fold(Vec::new(), |mut tr, rule| {
+            let mut solns = get_constraints(
                 inp,
                 rule.to.clone(),
                 constraint.intersect(rule, false),
                 dep + 1,
             );
             constraint = constraint.intersect(rule, true);
-            tr + solved
+            tr.append(&mut solns);
+            tr
         });
-        tr += solve(inp, inp.graph[&cur].last.clone(), constraint, dep + 1);
-        tr
-    }
+    let mut solns = get_constraints(inp, inp.graph[&cur].last.clone(), constraint, dep + 1);
+    tr.append(&mut solns);
+    tr
+}
 
-    solve(
+#[aoc(day19, part1)]
+fn part1(inp: &Input) -> u32 {
+    let constraints = get_constraints(
         inp,
         "in".to_owned(),
-        PartConstraint {
-            x: Constraint(vec![(1, 4000)]),
-            m: Constraint(vec![(1, 4000)]),
-            a: Constraint(vec![(1, 4000)]),
-            s: Constraint(vec![(1, 4000)]),
-        },
+        PartConstraint::with_range(1, 4000),
+        0,
+    );
+
+    inp.parts
+        .iter()
+        .filter(|part| {
+            constraints.iter().find(|c| c.fits(part)).is_some()
+        })
+        .map(|p| p.x + p.m + p.a + p.s)
+        .sum()
+}
+
+#[aoc(day19, part2)]
+fn part2(inp: &Input) -> u64 {
+    get_constraints(
+        inp,
+        "in".to_owned(),
+        PartConstraint::with_range(1, 4000),
         0,
     )
+    .iter()
+    .map(|c| c.combinations())
+    .sum()
 }
