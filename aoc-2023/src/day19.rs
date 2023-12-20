@@ -201,31 +201,19 @@ fn get_constraints(
 
 #[aoc(day19, part1)]
 fn part1(inp: &Input) -> u32 {
-    let constraints = get_constraints(
-        inp,
-        "in".to_owned(),
-        PartConstraint::with_range(1, 4000),
-        0,
-    );
+    let constraints = get_constraints(inp, "in".to_owned(), PartConstraint::with_range(1, 4000), 0);
 
     inp.parts
         .iter()
-        .filter(|part| {
-            constraints.iter().find(|c| c.fits(part)).is_some()
-        })
+        .filter(|part| constraints.iter().find(|c| c.fits(part)).is_some())
         .map(|p| p.x + p.m + p.a + p.s)
         .sum()
 }
 
 #[aoc(day19, part2)]
 fn part2(inp: &Input) -> u64 {
-    get_constraints(
-        inp,
-        "in".to_owned(),
-        PartConstraint::with_range(1, 4000),
-        0,
-    )
-    .iter()
-    .map(|c| c.combinations())
-    .sum()
+    get_constraints(inp, "in".to_owned(), PartConstraint::with_range(1, 4000), 0)
+        .iter()
+        .map(|c| c.combinations())
+        .sum()
 }
