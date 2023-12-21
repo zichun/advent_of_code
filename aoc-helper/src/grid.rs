@@ -127,6 +127,10 @@ impl<T> Grid<T> {
     pub fn get<'a>(&'a self, r: usize, c: usize) -> &'a T {
         &self.0[r][c]
     }
+    pub fn get_with_wrap<'a>(&'a self, r: isize, c: isize) -> &'a T {
+        let (mr, mc) = self.dimensions();
+        &self.0[r.rem_euclid(mr as isize) as usize][c.rem_euclid(mc as isize) as usize]
+    }
     pub fn coord_with_dir(&self, r: usize, c: usize, dir: Direction) -> Option<(usize, usize)> {
         let (r, c) = dir.go(r as isize, c as isize);
         let (mr, mc) = self.dimensions();
@@ -152,6 +156,13 @@ impl<T> Grid<T> {
         &self.0[r][c]
     }
 
+    pub fn iter(&self) -> GridIter<T> {
+        GridIter {
+            g: self,
+            r: 0,
+            c: 0,
+        }
+    }
     pub fn cols(&self) -> GridLinesIter<T> {
         GridLinesIter {
             g: self,
@@ -238,6 +249,29 @@ impl<'a, T> Iterator for GridLinesIter<'a, T> {
                 self.i += 1;
                 Some(self.g.col(self.i - 1))
             }
+        }
+    }
+}
+pub struct GridIter<'a, T> {
+    g: &'a Grid<T>,
+    r: usize,
+    c: usize,
+}
+impl<'a, T> Iterator for GridIter<'a, T> {
+    type Item = ((usize, usize), &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let (rr, cc) = self.g.dimensions();
+        let (prev_r, prev_c) = (self.r, self.c);
+        if prev_r >= rr {
+            None
+        } else {
+            self.c += 1;
+            if self.c >= cc {
+                self.c = 0;
+                self.r += 1;
+            }
+            Some(((prev_r, prev_c), self.g.get(prev_r, prev_c)))
         }
     }
 }

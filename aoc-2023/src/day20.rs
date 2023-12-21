@@ -1,4 +1,4 @@
-use std::{sync::Mutex, any::Any};
+use std::{any::Any, sync::Mutex};
 
 use aoc_helper::prelude::num::integer::lcm;
 
@@ -26,7 +26,7 @@ impl<'a> MachineRunner<'a> {
             machine,
             low: 0,
             high: 0,
-            pulses: VecDeque::new()
+            pulses: VecDeque::new(),
         }
     }
     fn new_pulse(&mut self, module_name: &'a str, pulse: bool, from: &'a str) {
@@ -47,7 +47,10 @@ impl<'a> MachineRunner<'a> {
             if let Some(module) = self.machine.modules.get(module_name) {
                 let mut module_write = module.module.lock().unwrap();
                 if let Some(output_pulse) = module_write.pulse(pulse, from) {
-                    module.outputs.iter().for_each(|dest| self.new_pulse(dest, output_pulse, module_name));
+                    module
+                        .outputs
+                        .iter()
+                        .for_each(|dest| self.new_pulse(dest, output_pulse, module_name));
                 }
             }
         }
@@ -156,7 +159,6 @@ fn parse(inp: &str) -> Machine {
 
     from.iter().for_each(|(to, inputs)| {
         if let Some(module) = modules.get_mut(to) {
-
             if module.module_type == '&' {
                 let mut module_write = module.module.lock().unwrap();
                 inputs.iter().for_each(|inp| module_write.new_input(inp));
@@ -164,15 +166,15 @@ fn parse(inp: &str) -> Machine {
         }
     });
 
-    Machine {
-        modules,
-    }
+    Machine { modules }
 }
 
 #[aoc(day20, part1)]
 fn part1(machine: &Machine) -> usize {
     let mut runner = MachineRunner::with_machine(machine);
-    (0..1000).for_each(|_| {runner.press_button("");} );
+    (0..1000).for_each(|_| {
+        runner.press_button("");
+    });
     runner.low * runner.high
 }
 
