@@ -12,6 +12,7 @@ mod day19;
 mod day2;
 mod day20;
 mod day21;
+mod day22;
 mod day3;
 mod day4;
 mod day5;
@@ -26,7 +27,7 @@ pub mod prelude {
     pub use itertools::{iproduct, Itertools};
     pub use regex::{Captures, Regex};
     pub use std::collections::hash_map::Entry;
-    pub use std::collections::{HashMap, HashSet, VecDeque};
+    pub use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 }
 
 aoc_runner_derive::aoc_lib! { year = 2023 }
