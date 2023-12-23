@@ -107,20 +107,23 @@ fn part1(grid: &Grid) -> usize {
 fn part2(grid: &Grid) -> usize {
     let (mr, mc) = grid.dimensions();
     let sc = grid.row(0).enumerate().find(|(_, ch)| **ch == '.').unwrap().0;
+    let ec = grid.row(mr - 1).enumerate().find(|(c, ch)| **ch == '.').unwrap().0;
 
     let mut q = VecDeque::new();
     let mut visited = vec![vec![false; mc]; mr];
     q.push_back((0, sc));
 
-    fn flood(grid: &Grid, visited: &mut Vec<Vec<bool>>, r: usize, c: usize, steps: usize, interesting: &mut Vec<(usize, usize, usize)>, first: bool) {
+    fn flood(grid: &Grid, visited: &mut Vec<Vec<bool>>, r: usize, c: usize, steps: usize, interesting: &mut Vec<(usize, usize, usize)>, prer: usize, prec: usize) {
+        let first = prer == r && prec == c;
+        let mut stop = false;
         if visited[r][c] && !first {
-            return;
+            stop = true;
         }
         visited[r][c] = true;
 
         let dirs = Direction::iter().filter(|dir| {
             if let Some((nr, nc)) = grid.coord_with_dir(r, c, *dir) {
-                *grid.get(nr, nc) != '#' && !visited[nr][nc]
+                *grid.get(nr, nc) != '#' && (nr != prer || nc != prec)
             } else {
                 false
             }
@@ -129,28 +132,45 @@ fn part2(grid: &Grid) -> usize {
         if first || dirs.len() == 1 {
             dirs.into_iter().for_each(|dir| {
                 let (nr, nc) = grid.coord_with_dir(r, c, dir).unwrap();
-                flood(grid, visited, nr, nc, steps + 1, interesting, false);
+                if !stop {
+                    flood(grid, visited, nr, nc, steps + 1, interesting, r, c);
+                }
             });
-        } else if dirs.len() > 1 {
+        } else if dirs.len() > 1 || r + 1 == grid.dimensions().0 {
             interesting.push((r, c, steps));
         }
     }
 
-    let mut graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>> = HashMap::new();
+    type GraphType = HashMap<(usize, usize), Vec<(usize, usize, usize)>>;
+    let mut graph: GraphType = HashMap::new();
 
     while let Some((r, c)) = q.pop_front() {
         // inner flood
         let mut interesting = Vec::new();
-        println!("flooding {} {}",r, c);
-        flood(&grid, &mut visited, r, c, 0, &mut interesting, true);
+        flood(&grid, &mut visited, r, c, 0, &mut interesting, r, c);
         interesting.into_iter().for_each(|(nr, nc, steps)| {
             graph.entry((r, c)).or_default().push((nr, nc, steps));
             graph.entry((nr, nc)).or_default().push((r, c, steps));
             q.push_back((nr, nc));
         });
     }
-    println!("{:?}", graph);
 
-    let ec = grid.row(mr - 1).enumerate().find(|(c, ch)| **ch == '.').unwrap().0;
-    0
+    fn dfs(grid: &Grid, graph: &GraphType, visited: &mut Vec<Vec<bool>>, cur: (usize, usize), tsteps: usize) -> usize {
+        let mut tr = 0;
+        if cur.0 + 1 == grid.dimensions().0 {
+            return tsteps;
+        }
+        graph[&cur].iter().for_each(|(nr, nc, steps)| {
+            if !visited[*nr][*nc] {
+                visited[*nr][*nc] = true;
+                tr = tr.max(dfs(grid, graph, visited, (*nr, *nc), tsteps + *steps));
+                visited[*nr][*nc] = false;
+            }
+        });
+        tr
+    }
+    let vertices = graph.keys().collect::<Vec<_>>();
+    let mut visited = vec![vec![false; mc]; mr];
+    visited[0][sc] = true;
+    dfs(&grid, &graph, &mut visited, (0, sc), 0)
 }
