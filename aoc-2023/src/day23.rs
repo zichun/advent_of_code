@@ -141,36 +141,43 @@ fn part2(grid: &Grid) -> usize {
         }
     }
 
-    type GraphType = HashMap<(usize, usize), Vec<(usize, usize, usize)>>;
+    type GraphType = HashMap<usize, Vec<(usize, usize)>>;
     let mut graph: GraphType = HashMap::new();
+    let mut vcnt = 0;
+    let mut dest = 0;
+    let mut vertices = HashMap::new();
 
     while let Some((r, c)) = q.pop_front() {
+        vertices.entry((r, c)).or_insert_with(|| { vcnt += 1; vcnt - 1 });
         // inner flood
         let mut interesting = Vec::new();
         flood(&grid, &mut visited, r, c, 0, &mut interesting, r, c);
         interesting.into_iter().for_each(|(nr, nc, steps)| {
-            graph.entry((r, c)).or_default().push((nr, nc, steps));
-            graph.entry((nr, nc)).or_default().push((r, c, steps));
+            vertices.entry((nr, nc)).or_insert_with(|| { vcnt += 1; vcnt - 1 });
+            let (from, to) = (vertices[&(r, c)], vertices[&(nr, nc)]);
+            if nr + 1 == mr {
+                dest = to;
+            }
+            graph.entry(from).or_default().push((to, steps));
+            graph.entry(to).or_default().push((from, steps));
             q.push_back((nr, nc));
         });
     }
 
-    fn dfs(grid: &Grid, graph: &GraphType, visited: &mut Vec<Vec<bool>>, cur: (usize, usize), tsteps: usize) -> usize {
+    let mut cache = HashMap::new();
+    fn dfs(grid: &Grid, graph: &GraphType, cache: &mut HashMap<usize, Vec<(usize, usize)>>, visited: usize, cur: usize, tsteps: usize, dest: usize) -> usize {
         let mut tr = 0;
-        if cur.0 + 1 == grid.dimensions().0 {
+        if cur == dest {
             return tsteps;
         }
-        graph[&cur].iter().for_each(|(nr, nc, steps)| {
-            if !visited[*nr][*nc] {
-                visited[*nr][*nc] = true;
-                tr = tr.max(dfs(grid, graph, visited, (*nr, *nc), tsteps + *steps));
-                visited[*nr][*nc] = false;
+
+        graph[&cur].iter().for_each(|(next, steps)| {
+            if visited & (1 << *next) == 0 {
+                tr = tr.max(dfs(grid, graph, cache, visited | (1 << *next), *next, tsteps + *steps, dest));
             }
         });
         tr
     }
-    let vertices = graph.keys().collect::<Vec<_>>();
-    let mut visited = vec![vec![false; mc]; mr];
-    visited[0][sc] = true;
-    dfs(&grid, &graph, &mut visited, (0, sc), 0)
+
+    dfs(&grid, &graph, &mut cache, 1, 0, 0, dest)
 }
