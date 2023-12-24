@@ -30,3 +30,10 @@ where
     }
     left
 }
+
+pub fn overlap<T>(from0: T, to0: T, from1: T, to1: T) -> bool
+where T: Ord {
+    (from0 <= from1 && from1 <= to0) ||
+        (from0 <= to1 && to1 <= to0) ||
+        (from1 <= from0 && to1 >= to0)
+}
