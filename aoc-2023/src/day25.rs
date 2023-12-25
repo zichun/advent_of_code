@@ -43,8 +43,13 @@ impl Graph {
     fn pick_random(&self, n: usize) -> usize {
         // prefer nodes below n
         // this assumes that the min-cuts do not start / end at source/sink
-        self.edges.enumerate().filter(|(ind, (l, r))| l < n || r < n).map(|
-        rand::thread_rng().gen_range(0..self.edges.len())
+        let under_n = self.edges.iter().enumerate().filter(|(ind, (l, r))| *l < n || *r < n).map(|(ind, _)| ind).collect::<Vec<_>>();
+        if !under_n.is_empty() {
+            let r = rand::thread_rng().gen_range(0..under_n.len());
+            under_n[r]
+        } else {
+            rand::thread_rng().gen_range(0..self.edges.len())
+        }
     }
 }
 
@@ -81,10 +86,8 @@ fn part1(graph: &Graph) -> usize {
             g.merge(g.pick_random(n));
         }
         if g.edges.len() == 3{
-            println!("{} {:?}", n, g.nodes);
             let mut n = g.nodes.iter();
             return *n.next().unwrap().1 * *n.next().unwrap().1;
         }
     }
-    0
 }
