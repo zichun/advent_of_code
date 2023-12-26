@@ -40,16 +40,8 @@ impl Graph {
             }
         });
     }
-    fn pick_random(&self, n: usize) -> usize {
-        // prefer nodes below n
-        // this assumes that the min-cuts do not start / end at source/sink
-        let under_n = self.edges.iter().enumerate().filter(|(ind, (l, r))| *l < n || *r < n).map(|(ind, _)| ind).collect::<Vec<_>>();
-        if !under_n.is_empty() {
-            let r = rand::thread_rng().gen_range(0..under_n.len());
-            under_n[r]
-        } else {
-            rand::thread_rng().gen_range(0..self.edges.len())
-        }
+    fn pick_random(&self) -> usize {
+        rand::thread_rng().gen_range(0..self.edges.len())
     }
 }
 
@@ -77,17 +69,40 @@ fn parse(inp: &str) -> Graph {
     }
 }
 
+fn contract(graph: &mut Graph, t: usize)  {
+    while graph.nodes.len() > t {
+        graph.merge(graph.pick_random());
+    }
+}
+
+fn mincut(graph: &mut Graph) -> Option<usize> {
+    if graph.nodes.len() <= 6 {
+        contract(graph, 2);
+        if graph.edges.len() == 3 {
+            let mut n = graph.nodes.iter();
+            Some(*n.next().unwrap().1 * *n.next().unwrap().1)
+        } else {
+            None
+        }
+    } else {
+        let t = 1 + (graph.nodes.len() as f64 / (2.0_f64)).floor() as usize;
+        let mut g2 = graph.clone();
+        contract(graph, t);
+        mincut(graph)
+            .or_else(|| {
+                contract(&mut g2, t);
+                mincut(&mut g2)
+            })
+    }
+}
+
 #[aoc(day25, part1)]
 fn part1(graph: &Graph) -> usize {
     loop {
         let mut g = graph.clone();
-        let n = g.vcnt;
-        for _ in 0..g.vcnt - 2 {
-            g.merge(g.pick_random(n));
-        }
-        if g.edges.len() == 3{
-            let mut n = g.nodes.iter();
-            return *n.next().unwrap().1 * *n.next().unwrap().1;
+        if let Some(ans) = mincut(&mut g) {
+            println!("{}", ans);
+            return ans;
         }
     }
 }
