@@ -1,4 +1,5 @@
 mod day1;
+mod day2;
 
 pub mod prelude {
     pub use aoc_helper::prelude::*;
