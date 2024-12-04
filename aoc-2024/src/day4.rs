@@ -7,12 +7,15 @@ fn cnt_xmas(g: &Grid<char>) -> usize {
     (0..rr)
         .map(|r| {
             (0..=cc-XMAS.len()).map(|c|
-            if r <= rr - XMAS.len() && XMAS.chars().enumerate().all(|(ind, char)| {
+            // diagonal
+            if r <= rr - XMAS.len() && XMAS.chars().enumerate().all(|(ind, char)|
                 *g.get(r + ind, c + ind) == char
-            }) { 1 } else { 0 } +
-            if XMAS.chars().enumerate().all(|(ind, char)| {
+            ) { 1 } else { 0 } +
+            // horizontal
+            XMAS.chars().enumerate().all(|(ind, char)|
                 *g.get(r, c + ind) == char
-            }) { 1 } else { 0 })
+            ).then_some(1).unwrap_or_default()
+                )
             .sum::<usize>()
         })
         .sum()
@@ -24,14 +27,10 @@ fn cnt_cross_mas(g: &Grid<char>) -> usize {
         .map(|r| {
             (0..=cc - MAS.len())
                 .map(|c| {
-                    if MAS.chars().enumerate().all(|(ind, char)| {
+                    MAS.chars().enumerate().all(|(ind, char)| {
                         *g.get(r + ind, c + ind) == char
                             && *g.get(r + MAS.len() - ind - 1, c + ind) == char
-                    }) {
-                        1
-                    } else {
-                        0
-                    }
+                    }).then_some(1).unwrap_or_default()
                 })
                 .sum::<usize>()
         })
