@@ -109,6 +109,49 @@ impl<T> Grid<T> {
         });
     }
 
+    pub fn mirror_rows(&self) -> Self
+    where
+        T: Copy,
+    {
+        let mut rows = self.rows().map(|r| r.copied().collect()).collect::<Vec<_>>();
+        rows.reverse();
+        Grid(rows)
+    }
+    pub fn mirror_cols(&self) -> Self
+    where
+        T: Copy,
+    {
+        Grid(self.rows().map(|r| {
+            let mut cols = r.copied().collect::<Vec<_>>();
+            cols.reverse();
+            cols
+        }).collect())
+    }
+
+    pub fn rotate(&self, cw_times: usize) -> Self
+    where
+        T: Copy,
+    {
+       let (rr, cc) = self.dimensions_with_rot(cw_times);
+        Grid((0..rr).map(|r| {
+            (0..cc).map(|c| *self.get_with_rot(r, c, cw_times)).collect()
+        }).collect())
+    }
+
+    pub fn rotate_cw(&self) -> Self
+    where
+        T: Copy,
+    {
+        self.rotate(1)
+    }
+
+    pub fn rotate_ccw(&self) -> Self
+    where
+        T: Copy,
+    {
+        self.rotate(3)
+    }
+
     pub fn transpose(&self) -> Self
     where
         T: Copy,
@@ -124,7 +167,7 @@ impl<T> Grid<T> {
         self.0[r][c] = t;
     }
 
-    pub fn get<'a>(&'a self, r: usize, c: usize) -> &'a T {
+    pub fn get(&self, r: usize, c: usize) -> &T {
         &self.0[r][c]
     }
     pub fn get_with_wrap<'a>(&'a self, r: isize, c: isize) -> &'a T {
@@ -142,11 +185,11 @@ impl<T> Grid<T> {
     }
     pub fn coord_with_rot(&self, r: usize, c: usize, cw_times: usize) -> (usize, usize) {
         let cw_times = cw_times % 4;
-        let (mr, _) = self.dimensions_with_rot(cw_times);
+        let (mr, mc) = self.dimensions_with_rot(cw_times);
         match cw_times {
             0 => (r, c),
-            1 => (c, r),
-            2 => (mr - r - 1, c),
+            1 => (mc - c - 1, r),
+            2 => (mr - r - 1, mc - c - 1),
             3 => (c, mr - r - 1),
             _ => unreachable!(),
         }
