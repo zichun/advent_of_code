@@ -194,7 +194,7 @@ impl<T> Grid<T> {
             _ => unreachable!(),
         }
     }
-    pub fn get_with_rot<'a>(&'a self, r: usize, c: usize, cw_times: usize) -> &'a T {
+    pub fn get_with_rot(&self, r: usize, c: usize, cw_times: usize) -> &T {
         let (r, c) = self.coord_with_rot(r, c, cw_times);
         &self.0[r][c]
     }
@@ -285,13 +285,11 @@ impl<'a, T> Iterator for GridLinesIter<'a, T> {
                 self.i += 1;
                 Some(self.g.row(self.i - 1))
             }
+        } else if self.i >= cc {
+            None
         } else {
-            if self.i >= cc {
-                None
-            } else {
-                self.i += 1;
-                Some(self.g.col(self.i - 1))
-            }
+            self.i += 1;
+            Some(self.g.col(self.i - 1))
         }
     }
 }
@@ -337,13 +335,11 @@ impl<'a, T> Iterator for GridLineIter<'a, T> {
                 self.c += 1;
                 Some(&self.g.0[self.r][self.c - 1])
             }
+        } else if self.r >= rr {
+            None
         } else {
-            if self.r >= rr {
-                None
-            } else {
-                self.r += 1;
-                Some(&self.g.0[self.r - 1][self.c])
-            }
+            self.r += 1;
+            Some(&self.g.0[self.r - 1][self.c])
         }
     }
 }
