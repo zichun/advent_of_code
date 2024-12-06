@@ -1,6 +1,6 @@
 use enum_iterator::{all, first, last, next, previous, All, Sequence};
 
-#[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug, Hash)]
 pub enum Direction {
     Up,
     Right,
