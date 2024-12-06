@@ -36,6 +36,7 @@ impl Direction {
         }
     }
     pub fn is_updown(&self) -> bool {
+
         *self == Direction::Up || *self == Direction::Down
     }
     pub fn is_leftright(&self) -> bool {
@@ -72,13 +73,13 @@ impl std::str::FromStr for Direction {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "E" | "R" | "e" | "r" => Direction::Right,
-            "N" | "U" | "n" | "u" => Direction::Up,
-            "W" | "L" | "w" | "l" => Direction::Left,
-            "S" | "D" | "s" | "d" => Direction::Down,
-            _ => unreachable!()
-        })
+        match s {
+            "E" | "R" | "e" | "r" | ">" => Ok(Direction::Right),
+            "N" | "U" | "n" | "u" | "^" => Ok(Direction::Up),
+            "W" | "L" | "w" | "l" | "<" => Ok(Direction::Left),
+            "S" | "D" | "s" | "d" | "v" => Ok(Direction::Down),
+            _ => Err(())
+        }
     }
 }
 
@@ -107,6 +108,31 @@ impl<T> Grid<T> {
             r.iter().for_each(|c| print!("{}", c));
             println!();
         });
+    }
+
+    pub fn expand_default(&self) -> Self
+    where
+        T: Copy + Default,
+    {
+        self.expand(T::default())
+    }
+
+    pub fn expand(&self, el: T) -> Self
+    where
+        T: Copy
+    {
+        let (_rr, cc) = self.dimensions();
+        let mut rows = Vec::new();
+        rows.push(vec![el; cc + 2]);
+        self.rows().for_each(|r| {
+            let mut row = Vec::new();
+            row.push(el);
+            row.append(&mut r.copied().collect::<Vec<_>>());
+            row.push(el);
+            rows.push(row);
+        });
+        rows.push(vec![el; cc + 2]);
+        Grid(rows)
     }
 
     pub fn mirror_rows(&self) -> Self
