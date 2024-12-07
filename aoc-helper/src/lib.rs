@@ -2,6 +2,7 @@ pub mod grid;
 pub mod input;
 pub mod algo;
 pub mod graph;
+pub mod arithmetic;
 
 pub mod prelude {
     pub use crate::grid::*;
