@@ -50,12 +50,13 @@ where T: Copy + Add<Output=T> + Mul<Output=T> + Sub<Output=T> + Div<Output=T> + 
 {
     pub fn eval(&self) -> Result<T, ()> {
         let rpn: Rpn<T> = self.into();
+        println!("{:?}", self.expr);
         rpn.eval()
     }
 }
 
 impl<T> std::str::FromStr for Infix<T>
-where T: From<u32> {
+where T: From<u16> {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -69,7 +70,7 @@ where T: From<u32> {
                 }
             } else {
                 if let Some(acc) = acc {
-                    expr.push(Symbol::Number(T::from(acc)));
+                    expr.push(Symbol::Number(T::from(acc.try_into().unwrap())));
                 }
                 if el == ' ' {
                     None
@@ -88,7 +89,7 @@ where T: From<u32> {
                 }
             }
         }) {
-            expr.push(Symbol::Number(T::from(acc)));
+            expr.push(Symbol::Number(T::from(acc.try_into().unwrap())));
         }
         Ok(Self {
             expr
@@ -105,7 +106,18 @@ where T: std::cmp::PartialEq + Copy
 
         for symb in &infx.expr {
             match symb {
-                Symbol::Operator(_) | Symbol::LeftParen => ops.push(symb),
+                Symbol::Operator(_) => {
+                    while !ops.is_empty() {
+                        let op: &&Symbol<T> = ops.last().unwrap();
+                        if **op != Symbol::LeftParen {
+                            rpn.push(*ops.pop().unwrap());
+                        } else {
+                            break;
+                        }
+                    }
+                    ops.push(symb);
+                },
+                Symbol::LeftParen => ops.push(symb),
                 Symbol::RightParen => {
                     let mut found = false;
                     while let Some(op) = ops.pop() {
@@ -174,6 +186,8 @@ where T: Copy + Add<Output=T> + Mul<Output=T> + Sub<Output=T> + Div<Output=T> + 
         println!("{}", self);
     }
     pub fn eval(&self) -> Result<T, ()> {
+        self.print();
+        println!("{:?}", self.stack);
         let mut buf_stack: Vec<T> = Vec::new();
         for symb in &self.stack {
             match symb {
@@ -202,4 +216,7 @@ fn test() {
 
     let infx: Infix<u32> = Infix::from_str("(3 + 4) * (1 + 2) - 4").unwrap();
     assert_eq!(infx.eval().unwrap(), 17);
+
+    let infx: Infix<i32> = Infix::from_str("(13 - 15) * (123 + 456)").unwrap();
+    assert_eq!(infx.eval().unwrap(), -1158);
 }
