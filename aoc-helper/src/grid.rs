@@ -91,6 +91,11 @@ impl<T> Grid<T> {
     pub fn dimensions(&self) -> (usize, usize) {
         (self.0.len(), self.0[0].len())
     }
+    pub fn contains(&self, r: isize, c: isize) -> bool
+    {
+        let (rr, cc) = self.dimensions();
+        r >= 0 && c >= 0 && r < rr as isize && c < cc as isize
+    }
     pub fn dimensions_with_rot(&self, cw_times: usize) -> (usize, usize) {
         let (mr, mc) = self.dimensions();
         if cw_times % 2 == 0 {

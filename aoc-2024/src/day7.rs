@@ -9,8 +9,9 @@ struct Inp {
 fn parse(input: &str) -> Vec<Inp> {
     input.lines().map(|l| {
         let mut tok = l.split(": ");
-        let (target, lst) = (tok.next().unwrap().parse().unwrap(),
-                             tok.next().unwrap().extract_tokens().collect());
+        let (target, mut lst) = (tok.next().unwrap().parse().unwrap(),
+                             tok.next().unwrap().extract_tokens().collect::<Vec<i64>>());
+        lst.reverse();
         Inp { target, lst }
     }).collect()
 }
@@ -23,30 +24,39 @@ enum Op {
 }
 
 impl Op {
-    fn eval(&self, l: i64, r: i64) -> i64 {
+    fn undo(&self, last: i64, el: i64) -> Option<i64> {
         match self {
-            Op::Add => l + r,
-            Op::Mul => l * r,
-            Op::Cct =>
-                l * i64::pow(10, r.checked_ilog10().unwrap_or(0) + 1) + r,
+            Op::Add => Some(last - el),
+            Op::Mul => if last % el == 0 { Some(last / el) } else { None },
+            Op::Cct => {
+                let (last_s, el_s) = (last.to_string(), el.to_string());
+                if last_s.len() > el_s.len() && last_s.ends_with(&el_s) {
+                    Some(last / i64::pow(10, el_s.len() as u32))
+                } else {
+                    None
+                }
+            },
         }
     }
 }
 
+fn solvable(target: i64, lst: &[i64], ops: &[Op]) -> bool {
+    if lst.len() == 1  && target == lst[0] {
+        return true;
+    }
+    ops.iter().any(|op| if let Some(nxt) = op.undo(target, lst[0]) {
+        solvable(nxt, &lst[1..lst.len()], ops)
+    } else {
+        false
+    })
+}
 fn solve(inp: &[Inp], ops: &[Op]) -> i64{
     inp.iter().filter_map(|Inp { target, lst }| {
-        if repeat_n(ops, lst.len() - 1).multi_cartesian_product()
-            .any(|ops| {
-                let mut lst = lst.iter();
-                let first = lst.next().unwrap();
-                zip(lst, ops).fold(*first, |acc, (nxt, op)| {
-                    op.eval(acc, *nxt)
-                }) == *target
-            }) {
-                Some(*target)
-            } else {
-                None
-            }
+        if solvable(*target, lst, ops) {
+            Some(*target)
+        } else {
+            None
+        }
     }).sum()
 }
 
