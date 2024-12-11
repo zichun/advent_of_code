@@ -210,18 +210,10 @@ impl<T> Grid<T> {
         let (mr, mc) = self.dimensions();
         &self.0[r.rem_euclid(mr as isize) as usize][c.rem_euclid(mc as isize) as usize]
     }
-    pub fn reachables<U: Iterator<Item: DirectionTrait>>(&self, r: usize, c: usize, dirs: U) -> impl Iterator<Item=(usize, usize)> {
-        let (rr, cc) = self.dimensions();
-        dirs.filter_map(move |dir| {
-            let (nr, nc) = dir.go(r as isize, c as isize);
-            if nr < 0 || nc < 0 || nr >= rr as isize || nc >= cc as isize {
-                None
-            } else {
-                Some((nr as usize, nc as usize))
-            }
-        })
+    pub fn reachables<U: Iterator<Item: DirectionTrait>>(&self, r: usize, c: usize, dirs: U) -> impl Iterator<Item=(usize, usize)> + use<'_, U, T> {
+        dirs.filter_map(move |dir| self.coord_with_dir(r, c, dir))
     }
-    pub fn coord_with_dir(&self, r: usize, c: usize, dir: Direction) -> Option<(usize, usize)> {
+    pub fn coord_with_dir(&self, r: usize, c: usize, dir: impl DirectionTrait) -> Option<(usize, usize)> {
         let (r, c) = dir.go(r as isize, c as isize);
         let (mr, mc) = self.dimensions();
         if r < 0 || c < 0 || r >= mr as isize || c >= mc as isize {

@@ -18,7 +18,7 @@ fn part2(inp: &str) -> usize {
             nodes.insert((nr, nc));
         }
     }
-    ant.iter().for_each(|(ch, coords)| {
+    ant.iter().for_each(|(_ch, coords)| {
         coords.iter().combinations(2).for_each(|v| {
             let ((r0, c0), (r1, c1)) = (v[0], v[1]);
             let (dr, dc) = (r1 - r0, c1 - c0);
@@ -62,7 +62,7 @@ fn part1(inp: &str) -> usize {
             nodes.insert((nr, nc));
         }
     }
-    ant.iter().for_each(|(ch, coords)| {
+    ant.iter().for_each(|(_ch, coords)| {
         coords.iter().combinations(2).for_each(|v| {
             let ((r0, c0), (r1, c1)) = (v[0], v[1]);
             let (dr, dc) = (r1 - r0, c1 - c0);

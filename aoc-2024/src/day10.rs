@@ -51,7 +51,7 @@ fn part2(inp: &str) -> usize {
                 g.reachables(*r, *c, Direction::iter())
                     .for_each(|(nr, nc)| {
                         if g.get(nr, nc).to_digit(10).unwrap() == height + 1 {
-                        reachable[*r][*c] += reachable[nr as usize][nc as usize];
+                        reachable[*r][*c] += reachable[nr][nc];
                     }
                 });
             }
