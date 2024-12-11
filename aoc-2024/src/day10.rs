@@ -16,15 +16,15 @@ fn part1(inp: &str) -> usize {
             if height == 9 {
                 reachable[*r][*c].insert((*r, *c));
             } else {
-                Direction::iter().for_each(|dir| {
-                    let (nr, nc) = dir.go(*r as isize, *c as isize);
-                    if g.contains(nr, nc) && g.get(nr as usize, nc as usize).to_digit(10).unwrap() == height + 1 {
-                        reachable[nr as usize][nc as usize].iter().cloned().collect::<Vec<_>>()
-                            .into_iter().for_each(|(nr, nc)| {
-                                reachable[*r][*c].insert((nr, nc));
-                            });
-                    }
-                });
+                g.reachables(*r, *c, Direction::iter())
+                    .for_each(|(nr, nc)| {
+                        if g.get(nr, nc).to_digit(10).unwrap() == height + 1 {
+                            reachable[nr][nc].iter().cloned().collect::<Vec<_>>()
+                                .into_iter().for_each(|(nr, nc)| {
+                                    reachable[*r][*c].insert((nr, nc));
+                                });
+                        }
+                    });
             }
         });
     });
@@ -48,9 +48,9 @@ fn part2(inp: &str) -> usize {
             if height == 9 {
                 reachable[*r][*c] = 1;
             } else {
-                Direction::iter().for_each(|dir| {
-                    let (nr, nc) = dir.go(*r as isize, *c as isize);
-                    if g.contains(nr, nc) && g.get(nr as usize, nc as usize).to_digit(10).unwrap() == height + 1 {
+                g.reachables(*r, *c, Direction::iter())
+                    .for_each(|(nr, nc)| {
+                        if g.get(nr, nc).to_digit(10).unwrap() == height + 1 {
                         reachable[*r][*c] += reachable[nr as usize][nc as usize];
                     }
                 });

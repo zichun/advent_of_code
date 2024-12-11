@@ -1,5 +1,9 @@
 use enum_iterator::{all, first, last, next, previous, All, Sequence};
 
+pub trait DirectionTrait {
+    fn go(&self, r: isize, c: isize) -> (isize, isize);
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug, Hash)]
 pub enum Direction {
     Up,
@@ -7,11 +11,13 @@ pub enum Direction {
     Down,
     Left,
 }
-impl Direction {
-    pub fn go(&self, r: isize, c: isize) -> (isize, isize) {
+impl DirectionTrait for Direction {
+    fn go(&self, r: isize, c: isize) -> (isize, isize) {
         let (dr, dc) = self.as_delta();
         (r + dr, c + dc)
     }
+}
+impl Direction {
     pub fn iter() -> All<Direction> {
         all::<Self>()
     }
@@ -36,7 +42,6 @@ impl Direction {
         }
     }
     pub fn is_updown(&self) -> bool {
-
         *self == Direction::Up || *self == Direction::Down
     }
     pub fn is_leftright(&self) -> bool {
@@ -204,6 +209,17 @@ impl<T> Grid<T> {
     pub fn get_with_wrap<'a>(&'a self, r: isize, c: isize) -> &'a T {
         let (mr, mc) = self.dimensions();
         &self.0[r.rem_euclid(mr as isize) as usize][c.rem_euclid(mc as isize) as usize]
+    }
+    pub fn reachables<U: Iterator<Item: DirectionTrait>>(&self, r: usize, c: usize, dirs: U) -> impl Iterator<Item=(usize, usize)> {
+        let (rr, cc) = self.dimensions();
+        dirs.filter_map(move |dir| {
+            let (nr, nc) = dir.go(r as isize, c as isize);
+            if nr < 0 || nc < 0 || nr >= rr as isize || nc >= cc as isize {
+                None
+            } else {
+                Some((nr as usize, nc as usize))
+            }
+        })
     }
     pub fn coord_with_dir(&self, r: usize, c: usize, dir: Direction) -> Option<(usize, usize)> {
         let (r, c) = dir.go(r as isize, c as isize);
