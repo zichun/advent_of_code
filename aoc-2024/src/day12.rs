@@ -65,8 +65,7 @@ fn part2(inp: &str) -> usize {
             let mut prev = usize::MAX;
             for c in 0..cc {
                 let (r, c) = g.coord_with_rot(r, c, rot);
-                let (nr, nc) = Direction::from_ind((-(rot as isize) % 4) as usize).go(r as isize, c as isize);
-
+                let (nr, nc) = Direction::from_ind(rot).go(r as isize, c as isize);
                 let is_fence = if g.contains(nr, nc) {
                     g.get(nr as usize, nc as usize) != g.get(r, c)
                 } else {
@@ -77,19 +76,16 @@ fn part2(inp: &str) -> usize {
                 if !is_fence || cur_tag != prev {
                     if is_fence {
                         *sides.entry(cur_tag).or_default() += 1;
+                        prev = cur_tag;
+                    } else {
+                        prev = usize::MAX;
                     }
-                    prev = cur_tag;
-                }
-
-                if rot == 1 {
-                    println!("{} {}: {} {}", r, c, is_fence, prev);
                 }
             }
         }
     }
 
     areas.iter().map(|(tag, area)| {
-        println!("{}: {}", tag, sides.get(tag).unwrap());
         area * sides.get(tag).unwrap()
     }).sum()
 }
