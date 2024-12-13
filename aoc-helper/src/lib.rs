@@ -9,6 +9,7 @@ pub mod prelude {
     pub use crate::input::*;
     pub use crate::algo::*;
     pub use crate::graph::*;
+    pub use crate::arithmetic::*;
 
     pub use num;
 }
