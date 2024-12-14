@@ -57,15 +57,10 @@ fn simulate(inp: &[Robot], rr: isize, cc: isize) -> isize {
             println!("{}: ", ticks);
             for r in 0..rr {
                 for c in 0..cc {
-                    if robots.contains(&(r, c)) {
-                        print!("*");
-                    } else {
-                        print!(".");
-                    }
+                    print!(if robots.contains(&(r, c)) { "*" } else { "." });
                 }
                 println!();
             }
-            println!();
             return ticks
         }
     }
