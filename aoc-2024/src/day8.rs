@@ -7,7 +7,9 @@ fn part2(inp: &str) -> usize {
     let mut ant = HashMap::new();
     g.iter().for_each(|((r, c), ch)| {
         if ch.is_ascii_alphanumeric() {
-            ant.entry(*ch).or_insert(Vec::new()).push((r as isize, c as isize));
+            ant.entry(*ch)
+                .or_insert(Vec::new())
+                .push((r as isize, c as isize));
         }
     });
 
@@ -33,7 +35,6 @@ fn part2(inp: &str) -> usize {
             for i in 0.. {
                 if g.contains(r0 - i * dr, c0 - i * dc) {
                     insert(r0 - i * dr, c0 - i * dc, rr, cc, &mut nodes);
-
                 } else {
                     break;
                 }
@@ -51,7 +52,9 @@ fn part1(inp: &str) -> usize {
     let mut ant = HashMap::new();
     g.iter().for_each(|((r, c), ch)| {
         if ch.is_ascii_alphanumeric() {
-            ant.entry(*ch).or_insert(Vec::new()).push((r as isize, c as isize));
+            ant.entry(*ch)
+                .or_insert(Vec::new())
+                .push((r as isize, c as isize));
         }
     });
 

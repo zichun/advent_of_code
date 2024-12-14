@@ -8,19 +8,23 @@ struct Blocks {
 
 // pre-compute indices of blocks so that we can fast-forward and find the next block in a given dir
 fn compute_blocks(g: &Grid<char>) -> Blocks {
-    let rows = g.rows().map(|r| {
-        r.enumerate().filter_map(|(ind, ch)|
-            if *ch == '#' {
-                Some(ind)
-            } else { None }).collect::<Vec<_>>()
-    }).collect();
+    let rows = g
+        .rows()
+        .map(|r| {
+            r.enumerate()
+                .filter_map(|(ind, ch)| if *ch == '#' { Some(ind) } else { None })
+                .collect::<Vec<_>>()
+        })
+        .collect();
 
-    let cols = g.cols().map(|c| {
-        c.enumerate().filter_map(|(ind, ch)|
-            if *ch == '#' {
-                Some(ind)
-            } else { None }).collect::<Vec<_>>()
-    }).collect();
+    let cols = g
+        .cols()
+        .map(|c| {
+            c.enumerate()
+                .filter_map(|(ind, ch)| if *ch == '#' { Some(ind) } else { None })
+                .collect::<Vec<_>>()
+        })
+        .collect();
 
     Blocks { rows, cols }
 }
@@ -29,16 +33,24 @@ fn compute_blocks(g: &Grid<char>) -> Blocks {
 fn parse(input: &str) -> (Grid<char>, Blocks, (usize, usize, Direction)) {
     let g: Grid<char> = Grid::from_str(input).unwrap();
 
-    let ((r, c), dir) = g.iter().find(|(_, el)| {
-        Direction::from_str(&el.to_string()).is_ok()
-    }).unwrap();
+    let ((r, c), dir) = g
+        .iter()
+        .find(|(_, el)| Direction::from_str(&el.to_string()).is_ok())
+        .unwrap();
     let dir = Direction::from_str(&dir.to_string()).unwrap();
     let blocks = compute_blocks(&g);
 
     (g, blocks, (r, c, dir))
 }
 
-fn simulate(g: &Grid<char>, b: &Blocks, mut r: isize, mut c: isize, mut dir: Direction, zoom: bool) -> (Vec<(usize, usize, Direction)>, bool) {
+fn simulate(
+    g: &Grid<char>,
+    b: &Blocks,
+    mut r: isize,
+    mut c: isize,
+    mut dir: Direction,
+    zoom: bool,
+) -> (Vec<(usize, usize, Direction)>, bool) {
     let mut path = Vec::new();
     let (rr, cc) = g.dimensions();
     let mut visited = HashSet::new();
@@ -54,14 +66,10 @@ fn simulate(g: &Grid<char>, b: &Blocks, mut r: isize, mut c: isize, mut dir: Dir
             dir = dir.next();
         } else if zoom {
             let next_block = match dir {
-                Direction::Up =>
-                    b.cols[c as usize].iter().rev().find(|bl| **bl < r as usize),
-                Direction::Right =>
-                    b.rows[r as usize].iter().find(|bl| **bl > c as usize),
-                Direction::Down =>
-                    b.cols[c as usize].iter().find(|bl| **bl > r as usize),
-                Direction::Left =>
-                    b.rows[r as usize].iter().rev().find(|bl| **bl < c as usize),
+                Direction::Up => b.cols[c as usize].iter().rev().find(|bl| **bl < r as usize),
+                Direction::Right => b.rows[r as usize].iter().find(|bl| **bl > c as usize),
+                Direction::Down => b.cols[c as usize].iter().find(|bl| **bl > r as usize),
+                Direction::Left => b.rows[r as usize].iter().rev().find(|bl| **bl < c as usize),
             };
             match next_block {
                 Some(ind) => {
@@ -71,7 +79,7 @@ fn simulate(g: &Grid<char>, b: &Blocks, mut r: isize, mut c: isize, mut dir: Dir
                         Direction::Right => (r, *ind as isize - 1),
                         Direction::Left => (r, *ind as isize + 1),
                     };
-                },
+                }
                 None => break,
             }
         } else {
@@ -104,36 +112,47 @@ fn part2((g, b, (r, c, dir)): &(Grid<char>, Blocks, (usize, usize, Direction))) 
     let (rr, cc) = g.dimensions();
     let (ir, ic, dir) = path[0];
 
-    let candidates = path.iter().filter_map(|(r, c, dir)| {
-        let (r, c) = (*r as isize, *c as isize);
-        let (nr, nc) = dir.go(r, c);
-        if nr >= 0 && nc >= 0 && nr < rr as isize && nc < cc as isize &&
-            *g.get(nr as usize, nc as usize) == '.' {
+    let candidates = path
+        .iter()
+        .filter_map(|(r, c, dir)| {
+            let (r, c) = (*r as isize, *c as isize);
+            let (nr, nc) = dir.go(r, c);
+            if nr >= 0
+                && nc >= 0
+                && nr < rr as isize
+                && nc < cc as isize
+                && *g.get(nr as usize, nc as usize) == '.'
+            {
                 Some((nr as usize, nc as usize))
             } else {
                 None
             }
-    }).unique().collect::<Vec<_>>();
+        })
+        .unique()
+        .collect::<Vec<_>>();
 
-    candidates.into_iter().filter(|(r, c)| {
-        if *g.get(*r, *c) == '.' {
-            g.set(*r, *c, '#');
-            b.rows[*r].push(*c);
-            b.cols[*c].push(*r);
-            b.rows[*r].sort();
-            b.cols[*c].sort();
+    candidates
+        .into_iter()
+        .filter(|(r, c)| {
+            if *g.get(*r, *c) == '.' {
+                g.set(*r, *c, '#');
+                b.rows[*r].push(*c);
+                b.cols[*c].push(*r);
+                b.rows[*r].sort();
+                b.cols[*c].sort();
 
-            let (_, escaped) = simulate(&g, &b, ir as isize, ic as isize, dir, true);
+                let (_, escaped) = simulate(&g, &b, ir as isize, ic as isize, dir, true);
 
-            g.set(*r, *c, '.');
-            let ind = b.rows[*r].binary_search(c).unwrap();
-            b.rows[*r].remove(ind);
-            let ind = b.cols[*c].binary_search(r).unwrap();
-            b.cols[*c].remove(ind);
+                g.set(*r, *c, '.');
+                let ind = b.rows[*r].binary_search(c).unwrap();
+                b.rows[*r].remove(ind);
+                let ind = b.cols[*c].binary_search(r).unwrap();
+                b.cols[*c].remove(ind);
 
-            !escaped
-        } else {
-            false
-        }
-    }).count()
+                !escaped
+            } else {
+                false
+            }
+        })
+        .count()
 }

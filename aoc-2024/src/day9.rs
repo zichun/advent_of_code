@@ -44,7 +44,7 @@ fn part1(inp: &str) -> usize {
 #[derive(Debug)]
 enum Space {
     File(usize, usize, usize), // file_ind, len, left_ind
-    Gap(usize, usize) //len, left-ind
+    Gap(usize, usize),         //len, left-ind
 }
 
 #[aoc(day9, part2)]
@@ -87,5 +87,3 @@ fn part2(inp: &str) -> usize {
 
     cs
 }
-
-

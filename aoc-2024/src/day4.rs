@@ -27,10 +27,14 @@ fn cnt_cross_mas(g: &Grid<char>) -> usize {
         .map(|r| {
             (0..=cc - MAS.len())
                 .map(|c| {
-                    MAS.chars().enumerate().all(|(ind, char)| {
-                        *g.get(r + ind, c + ind) == char
-                            && *g.get(r + MAS.len() - ind - 1, c + ind) == char
-                    }).then_some(1).unwrap_or_default()
+                    MAS.chars()
+                        .enumerate()
+                        .all(|(ind, char)| {
+                            *g.get(r + ind, c + ind) == char
+                                && *g.get(r + MAS.len() - ind - 1, c + ind) == char
+                        })
+                        .then_some(1)
+                        .unwrap_or_default()
                 })
                 .sum::<usize>()
         })

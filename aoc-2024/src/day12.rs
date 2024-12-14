@@ -1,6 +1,12 @@
 use crate::prelude::*;
 
-fn floodfill(r: usize, c: usize, g: &Grid<char>, vis: &mut HashMap<(usize, usize), usize>, tag: usize) -> (usize, usize) {
+fn floodfill(
+    r: usize,
+    c: usize,
+    g: &Grid<char>,
+    vis: &mut HashMap<(usize, usize), usize>,
+    tag: usize,
+) -> (usize, usize) {
     if vis.contains_key(&(r, c)) {
         return (0, 0);
     }
@@ -17,7 +23,7 @@ fn floodfill(r: usize, c: usize, g: &Grid<char>, vis: &mut HashMap<(usize, usize
                     let (a, p) = floodfill(r, c, g, vis, tag);
                     (a, p)
                 }
-            },
+            }
             None => (0, 1),
         };
         tr.0 += a;
@@ -85,7 +91,8 @@ fn part2(inp: &str) -> usize {
         }
     }
 
-    areas.iter().map(|(tag, area)| {
-        area * sides.get(tag).unwrap()
-    }).sum()
+    areas
+        .iter()
+        .map(|(tag, area)| area * sides.get(tag).unwrap())
+        .sum()
 }

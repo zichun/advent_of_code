@@ -13,8 +13,7 @@ fn recur(num: u64, times: usize, memo: &mut HashMap<(u64, usize), usize>) -> usi
             recur(num * 2024, times - 1, memo)
         } else {
             let div = u64::pow(10, num_len as u32 / 2);
-            recur(num / div, times - 1, memo)
-                + recur(num % div, times - 1, memo)
+            recur(num / div, times - 1, memo) + recur(num % div, times - 1, memo)
         };
         memo.insert((num, times), tr);
         tr
@@ -24,11 +23,15 @@ fn recur(num: u64, times: usize, memo: &mut HashMap<(u64, usize), usize>) -> usi
 #[aoc(day11, part1)]
 fn part1(inp: &str) -> usize {
     let mut memo = HashMap::new();
-    inp.extract_tokens::<u64>().map(|num| recur(num, 25, &mut memo)).sum()
+    inp.extract_tokens::<u64>()
+        .map(|num| recur(num, 25, &mut memo))
+        .sum()
 }
 
 #[aoc(day11, part2)]
 fn part2(inp: &str) -> usize {
     let mut memo = HashMap::new();
-    inp.extract_tokens::<u64>().map(|num| recur(num, 75, &mut memo)).sum()
+    inp.extract_tokens::<u64>()
+        .map(|num| recur(num, 75, &mut memo))
+        .sum()
 }
