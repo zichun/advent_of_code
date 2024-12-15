@@ -75,7 +75,7 @@ impl Direction {
 }
 
 impl std::str::FromStr for Direction {
-    type Err = ();
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
@@ -83,7 +83,7 @@ impl std::str::FromStr for Direction {
             "N" | "U" | "n" | "u" | "^" => Ok(Direction::Up),
             "W" | "L" | "w" | "l" | "<" => Ok(Direction::Left),
             "S" | "D" | "s" | "d" | "v" => Ok(Direction::Down),
-            _ => Err(())
+            _ => Err(s.to_string())
         }
     }
 }
