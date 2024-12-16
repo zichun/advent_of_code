@@ -57,12 +57,12 @@ fn part1(inp: &Input) -> usize {
 //
 
 #[derive(PartialEq, Eq, Clone, Copy)]
-#[repr(i8)]
+#[repr(u32)]
 enum El {
-    Empty,
-    BoxLeft,
-    BoxRight,
-    Wall,
+    Empty = '.' as u32,
+    Wall = '#' as u32,
+    BoxLeft  = '[' as u32,
+    BoxRight = ']' as u32,
 }
 impl El {
     fn beside(&self, c: usize) -> usize {
@@ -76,12 +76,7 @@ impl El {
 
 impl std::fmt::Display for El { // for printing
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            El::Empty => ".",
-            El::Wall => "#",
-            El::BoxLeft => "[",
-            El::BoxRight => "]",
-        })
+        write!(f, "{}", *self as u32 as u8 as char)
     }
 }
 
