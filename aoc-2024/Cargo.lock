@@ -18,6 +18,7 @@ dependencies = [
  "aoc-helper",
  "aoc-runner",
  "aoc-runner-derive",
+ "enum-iterator",
  "itertools",
  "orx-linked-list",
  "rand",
