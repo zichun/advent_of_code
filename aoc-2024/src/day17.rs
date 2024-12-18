@@ -196,7 +196,7 @@ while A > 0:
 */
     let mut target = inp.program.clone();
     target.reverse();
-    fn recur(pos: usize, target: &[u8], mut a: usize) -> Option<usize>{
+    fn recur(pos: usize, target: &[u8], a: usize) -> Option<usize>{
         assert!(pos < target.len());
 
         let mut b = a & 7;

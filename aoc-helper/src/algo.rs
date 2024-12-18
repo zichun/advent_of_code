@@ -1,3 +1,5 @@
+use std::collections::{HashSet, VecDeque};
+
 pub fn bsearch<I, F>(mut left: I, mut right: I, mut test: F) -> I
 where
     I: num::Integer + Copy + From<u8>,
@@ -50,4 +52,39 @@ where T: std::cmp::PartialEq<isize> + std::ops::Rem<Output = T> + std::ops::Div
     let x = y1;
     let y = x1 - (a / b) * y1;
     (g, x, y)
+}
+
+pub struct Bfs<T> {
+    q: VecDeque<(T, usize)>,
+    visited: HashSet<T>,
+}
+impl<T> Bfs<T>
+where T: std::hash::Hash + Clone + Copy + Eq
+{
+    pub fn new() -> Self {
+        Self {
+            q: VecDeque::new(),
+            visited: HashSet::new()
+        }
+    }
+    pub fn visit(&mut self, t: T, dist: usize) -> bool {
+        if !self.visited.contains(&t) {
+            self.visited.insert(t);
+            self.q.push_back((t, dist));
+            true
+        } else {
+            false
+        }
+    }
+    pub fn pop(&mut self) -> Option<(T, usize)> {
+        self.q.pop_front()
+    }
+}
+
+impl<T> Default for Bfs<T>
+where T: std::hash::Hash + Clone + Copy + Eq
+{
+    fn default() -> Self {
+        Self::new()
+    }
 }

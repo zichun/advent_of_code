@@ -93,6 +93,16 @@ pub struct Grid<T>(pub Vec<Vec<T>>);
 
 #[allow(dead_code)]
 impl<T> Grid<T> {
+    pub fn new_with_default(r: usize, c: usize) -> Self
+    where T: Default + Clone
+    {
+        Self(vec![vec![T::default(); c]; r])
+    }
+    pub fn new(r: usize, c: usize, t: T) -> Self
+    where T: Clone + Copy
+    {
+        Self(vec![vec![t; c]; r])
+    }
     pub fn dimensions(&self) -> (usize, usize) {
         (self.0.len(), self.0[0].len())
     }
