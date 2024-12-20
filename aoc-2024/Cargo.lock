@@ -30,6 +30,7 @@ name = "aoc-helper"
 version = "0.1.0"
 dependencies = [
  "enum-iterator",
+ "itertools",
  "num",
 ]
 

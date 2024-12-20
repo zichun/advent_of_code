@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::{cmp::Ordering, collections::{hash_map::Entry, BinaryHeap, HashMap, HashSet, VecDeque}};
 
 pub fn bsearch<I, F>(mut left: I, mut right: I, mut test: F) -> I
 where
@@ -54,9 +54,63 @@ where T: std::cmp::PartialEq<isize> + std::ops::Rem<Output = T> + std::ops::Div
     (g, x, y)
 }
 
+#[derive(PartialEq, Eq)]
+pub struct InnerDijk<T> {
+    t: T,
+    dist: usize,
+}
+impl<T: Ord> Ord for InnerDijk<T> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other.dist.cmp(&self.dist)
+            .then_with(|| other.t.cmp(&self.t))
+    }
+}
+impl<T: Ord> PartialOrd for InnerDijk<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+pub struct Dijkstra<T> {
+    heap: BinaryHeap<InnerDijk<T>>,
+    dists: HashMap<T, usize>,
+}
+impl <T> Dijkstra<T>
+where T: std::hash::Hash + Clone + Copy + Eq + Ord
+{
+    pub fn new() -> Self {
+        Self {
+            heap: BinaryHeap::new(),
+            dists: HashMap::new()
+        }
+    }
+    pub fn visit(&mut self, t: T, dist: usize) -> bool {
+        if dist < *self.dists.entry(t).or_insert(usize::MAX) {
+            self.dists.insert(t, dist);
+            self.heap.push(InnerDijk {
+                t,
+                dist
+            });
+            true
+        } else {
+            false
+        }
+    }
+    pub fn pop(&mut self) -> Option<(T, usize)> {
+        self.heap.pop().map(|InnerDijk { t, dist }| (t, dist))
+    }
+}
+
+impl<T> Default for Dijkstra<T>
+where T: std::hash::Hash + Clone + Copy + Eq + Ord
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Bfs<T> {
     q: VecDeque<(T, usize)>,
-    visited: HashSet<T>,
+    dist: HashMap<T, usize>,
 }
 impl<T> Bfs<T>
 where T: std::hash::Hash + Clone + Copy + Eq
@@ -64,12 +118,12 @@ where T: std::hash::Hash + Clone + Copy + Eq
     pub fn new() -> Self {
         Self {
             q: VecDeque::new(),
-            visited: HashSet::new()
+            dist: HashMap::new()
         }
     }
     pub fn visit(&mut self, t: T, dist: usize) -> bool {
-        if !self.visited.contains(&t) {
-            self.visited.insert(t);
+        if let Entry::Vacant(e) = self.dist.entry(t) {
+            e.insert(dist);
             self.q.push_back((t, dist));
             true
         } else {
@@ -78,6 +132,9 @@ where T: std::hash::Hash + Clone + Copy + Eq
     }
     pub fn pop(&mut self) -> Option<(T, usize)> {
         self.q.pop_front()
+    }
+    pub fn get_distance(&self) -> HashMap<T, usize> {
+        self.dist.clone()
     }
 }
 

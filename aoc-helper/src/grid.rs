@@ -1,7 +1,9 @@
 use enum_iterator::{all, first, last, next, previous, All, Sequence};
+use itertools::Itertools;
 
 pub trait DirectionTrait {
     fn go(&self, r: isize, c: isize) -> (isize, isize);
+    fn go_n(&self, r: isize, c: isize, n: usize) -> (isize, isize);
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug, Hash)]
@@ -15,6 +17,11 @@ impl DirectionTrait for Direction {
     fn go(&self, r: isize, c: isize) -> (isize, isize) {
         let (dr, dc) = self.as_delta();
         (r + dr, c + dc)
+    }
+
+    fn go_n(&self, r: isize, c: isize, n: usize) -> (isize, isize) {
+        let (dr, dc) = self.as_delta();
+        (r + dr * (n as isize), c + dc * (n as isize))
     }
 }
 impl Direction {
@@ -219,6 +226,12 @@ impl<T> Grid<T> {
     pub fn get_with_wrap<'a>(&'a self, r: isize, c: isize) -> &'a T {
         let (mr, mc) = self.dimensions();
         &self.0[r.rem_euclid(mr as isize) as usize][c.rem_euclid(mc as isize) as usize]
+    }
+    pub fn reachables_n<U: Iterator<Item: DirectionTrait> + Clone>(&self, r: usize, c: usize, n: usize, dirs: U) -> impl Iterator<Item=(usize, usize)> + use<'_, U, T> {
+        (0..n).fold(vec![(r, c)], |v, _| {
+            v.into_iter().flat_map(|(r, c)|
+                dirs.clone().filter_map(move |dir| self.coord_with_dir(r, c, dir))).unique().collect()
+        }).into_iter()
     }
     pub fn reachables<U: Iterator<Item: DirectionTrait>>(&self, r: usize, c: usize, dirs: U) -> impl Iterator<Item=(usize, usize)> + use<'_, U, T> {
         dirs.filter_map(move |dir| self.coord_with_dir(r, c, dir))
