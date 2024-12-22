@@ -16,11 +16,9 @@ fn part1(inp: &str) -> isize {
 #[aoc(day22, part2)]
 fn part2(inp: &str) -> isize {
     let mut map = HashMap::new();
-    inp.extract_tokens::<isize>().for_each(|mut s| {
-        let or = s;
-        let mut hash = 0;
+    inp.extract_tokens::<isize>().for_each(|s| {
         let mut seen = HashSet::new();
-        for i in 0..2000 {
+        (0..2000).fold((s, 0), |(s, mut hash), i| {
             let nxt = next(s);
             let del = (nxt % 10) - (s % 10);
             hash = hash * 20 + (del + 10);
@@ -32,9 +30,8 @@ fn part2(inp: &str) -> isize {
                     seen.insert(hash);
                 }
             }
-
-            s = nxt;
-        }
+            (nxt, hash)
+        });
     });
 
     *map.values().max().unwrap()
