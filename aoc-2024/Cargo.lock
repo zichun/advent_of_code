@@ -35,6 +35,7 @@ dependencies = [
  "enum-iterator",
  "itertools",
  "num",
+ "rand",
 ]
 
 [[package]]
