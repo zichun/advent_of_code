@@ -7,6 +7,95 @@ pub trait DirectionTrait {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug, Hash)]
+pub enum DirectionWithDiag {
+    Up,
+    UpRight,
+    Right,
+    DownRight,
+    Down,
+    DownLeft,
+    Left,
+    UpLeft,
+}
+impl DirectionTrait for DirectionWithDiag {
+    fn go(&self, r: isize, c: isize) -> (isize, isize) {
+        let (dr, dc) = self.as_delta();
+        (r + dr, c + dc)
+    }
+
+    fn go_n(&self, r: isize, c: isize, n: usize) -> (isize, isize) {
+        let (dr, dc) = self.as_delta();
+        (r + dr * (n as isize), c + dc * (n as isize))
+    }
+}
+impl DirectionWithDiag {
+    pub fn iter() -> All<DirectionWithDiag> {
+        all::<Self>()
+    }
+    pub fn opp(&self) -> Self {
+        match self {
+            DirectionWithDiag::Up => DirectionWithDiag::Down,
+            DirectionWithDiag::UpRight => DirectionWithDiag::DownLeft,
+            DirectionWithDiag::Right => DirectionWithDiag::Left,
+            DirectionWithDiag::DownRight => DirectionWithDiag::UpLeft,
+            DirectionWithDiag::Down => DirectionWithDiag::Up,
+            DirectionWithDiag::DownLeft => DirectionWithDiag::UpRight,
+            DirectionWithDiag::Left => DirectionWithDiag::Right,
+            DirectionWithDiag::UpLeft => DirectionWithDiag::DownRight,
+        }
+    }
+    pub fn next(&self) -> Self {
+        match next(self) {
+            None => first::<Self>().unwrap(),
+            Some(d) => d,
+        }
+    }
+    pub fn prev(&self) -> Self {
+        match previous(self) {
+            None => last::<Self>().unwrap(),
+            Some(d) => d,
+        }
+    }
+    pub fn as_delta(&self) -> (isize, isize) {
+        match self {
+            DirectionWithDiag::Up => (-1, 0),
+            DirectionWithDiag::Right => (0, 1),
+            DirectionWithDiag::Down => (1, 0),
+            DirectionWithDiag::Left => (0, -1),
+            DirectionWithDiag::UpRight => (-1, 1),
+            DirectionWithDiag::DownRight => (1, 1),
+            DirectionWithDiag::DownLeft => (1, -1),
+            DirectionWithDiag::UpLeft => (-1, -1),
+        }
+    }
+    pub fn ind(&self) -> usize {
+        match self {
+            DirectionWithDiag::Up => 0,
+            DirectionWithDiag::UpRight => 1,
+            DirectionWithDiag::Right => 2,
+            DirectionWithDiag::DownRight => 3,
+            DirectionWithDiag::Down => 4,
+            DirectionWithDiag::DownLeft => 5,
+            DirectionWithDiag::Left => 6,
+            DirectionWithDiag::UpLeft => 7,
+        }
+    }
+    pub fn from_ind(ind: usize) -> DirectionWithDiag {
+        match ind % 4{
+            0 => DirectionWithDiag::Up,
+            1 => DirectionWithDiag::UpRight,
+            2 => DirectionWithDiag::Right,
+            3 => DirectionWithDiag::DownRight,
+            4 => DirectionWithDiag::Down,
+            5 => DirectionWithDiag::DownLeft,
+            6 => DirectionWithDiag::Left,
+            7 => DirectionWithDiag::UpLeft,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Sequence, Debug, Hash)]
 pub enum Direction {
     Up,
     Right,
@@ -120,7 +209,7 @@ impl<T> Grid<T> {
     }
     pub fn dimensions_with_rot(&self, cw_times: usize) -> (usize, usize) {
         let (mr, mc) = self.dimensions();
-        if cw_times % 2 == 0 {
+        if cw_times.is_multiple_of(2) {
             (mr, mc)
         } else {
             (mc, mr)
