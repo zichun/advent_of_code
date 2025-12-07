@@ -1,5 +1,9 @@
 use crate::prelude::*;
 
+fn eval<T: Sum + Product, I: IntoIterator<Item = T>>(op: char, nums: I) -> T {
+    if op == '+' { nums.into_iter().sum() } else { nums.into_iter().product() }
+}
+
 #[aoc(day6, part1)]
 fn part1(inp: &str) -> u64 {
     let mut nums: Vec<Vec<u64>> = Vec::new();
@@ -16,13 +20,7 @@ fn part1(inp: &str) -> u64 {
     });
 
     ops.iter().enumerate().map(|(i, &op)| {
-        nums.iter().fold(if op == '+' { 0 } else { 1 }, |acc, el| {
-            if op == '+' {
-                acc + el[i]
-            } else {
-                acc * el[i]
-            }
-        })
+        eval(op, nums.iter().map(|el| el[i]))
     }).sum()
 }
 
@@ -58,15 +56,8 @@ fn part2(inp: &str) -> u64 {
     });
 
     ops.iter().map(|&(op, ind)| {
-        vertnums.iter()
+        eval(op, vertnums.iter()
             .skip(ind)
-            .take_while(|&&num| num > 0)
-            .fold(if op == '+' { 0 } else { 1 }, |acc, &el| {
-                if op == '+' {
-                    acc + el
-                } else {
-                    acc * el
-                }
-            })
+            .take_while(|&&num| num > 0).copied())
     }).sum()
 }
