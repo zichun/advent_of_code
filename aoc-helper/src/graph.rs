@@ -11,24 +11,24 @@ pub struct Graph<T> {
 }
 
 impl<T> Graph<T>
-where T: std::hash::Hash + Default + Eq + Copy
+where T: std::hash::Hash + Default + Eq + Clone
 {
     pub fn new() -> Self {
         Graph::default()
     }
 
     pub fn add_edge(&mut self, a: T, b: T) -> bool {
-        self.vertices.insert(a);
-        self.vertices.insert(b);
+        self.vertices.insert(a.clone());
+        self.vertices.insert(b.clone());
 
-        self.adj_list.entry(b).or_default();
-        let out = self.adj_list.entry(a).or_default();
+        self.adj_list.entry(b.clone()).or_default();
+        let out = self.adj_list.entry(a.clone()).or_default();
         if out.contains(&b) {
             return false;
         }
-        out.insert(b);
-        *self.in_degree.entry(b).or_default() += 1;
-        *self.out_degree.entry(a).or_default() += 1;
+        out.insert(b.clone());
+        *self.in_degree.entry(b.clone()).or_default() += 1;
+        *self.out_degree.entry(a.clone()).or_default() += 1;
         self.in_degree.entry(a).or_default();
         self.out_degree.entry(b).or_default();
         true
