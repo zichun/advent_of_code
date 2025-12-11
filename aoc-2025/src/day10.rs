@@ -70,44 +70,39 @@ impl Input {
             let jolt = joltage[jolt_map_ind];
             let buttons_cnt = buttons_map[ind].len();
 
-            if let Some(m) = (0..=jolt).combinations_with_replacement(buttons_cnt - 1)
-                .filter_map(|separators| {
-                    let mut bins = Vec::with_capacity(buttons_cnt);
-                    let mut last_pos = 0;
+            let mut bins = vec![0; buttons_cnt];
+            bins[buttons_cnt - 1] = jolt;
 
-                    for sep in separators {
-                        bins.push(sep - last_pos);
-                        last_pos = sep;
-                    }
-                    if jolt > last_pos {
-                        bins.push(jolt - last_pos);
-                    } else {
-                        bins.push(0);
-                    }
+            loop {
+                let mut presses = vec![0; joltage.len()];
+                for i in 0..bins.len() {
+                    // we press button_ind, bins[i] times
+                    if bins[i] == 0 { continue; }
+                    let button_ind = buttons_map[ind][i];
+                    inp.buttons[button_ind].0.iter().for_each(|&sind| presses[sind] += bins[i]);
+                }
+                let overflow = presses.iter().enumerate().any(|(sind, &press_cnt)| press_cnt > joltage[sind]);
 
-                    let mut presses = vec![0; joltage.len()];
-                    for i in 0..bins.len() {
-                        // we press button_ind, bins[i] times
-                        if bins[i] == 0 { continue; }
-                        let button_ind = buttons_map[ind][i];
-                        inp.buttons[button_ind].0.iter().for_each(|&sind| presses[sind] += bins[i]);
-                    }
-                    if presses.iter().enumerate().any(|(sind, &press_cnt)| press_cnt > joltage[sind]) {
-                        return None;
-                    }
+                if !overflow {
 
                     presses.iter().enumerate().for_each(|(sind, &press_cnt)|  joltage[sind] -= press_cnt);
-                    let tr = dfs(jolt_map, buttons_map, joltage, ind + 1, inp, memo);
+                    let res = dfs(jolt_map, buttons_map, joltage, ind + 1, inp, memo);
                     presses.iter().enumerate().for_each(|(sind, &press_cnt)|  joltage[sind] += press_cnt);
-
-                    if tr < usize::MAX {
-                        Some(tr + jolt)
-                    } else {
-                        None
+                    if res < usize::MAX {
+                        tr = tr.min(res + jolt);
                     }
-                }).min() {
-                    tr = tr.min(m);
                 }
+
+                let riter = bins.iter().rposition(|v| *v != 0).unwrap();
+                if riter == 0 {
+                    break;
+                }
+                let temp = bins[riter];
+                bins[riter - 1] += 1;
+                bins[riter] = 0;
+                bins[buttons_cnt - 1] = temp - 1;
+            }
+
             memo.insert(joltage.to_vec(), tr);
             tr
         }
